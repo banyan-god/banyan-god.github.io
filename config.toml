@@ -1,5 +1,9 @@
 languageCode = 'en-us'
 title = 'Hi !'
 theme = "PaperMod"
-baseURL = "https://banyan-god.github.io/personal-website/"
+baseURL = "/"
 publishDir = "public"
+[[menu.main]]
+name = "Blog"
+url = "/posts/"
+weight = 2
