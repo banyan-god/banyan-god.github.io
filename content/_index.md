@@ -83,6 +83,6 @@ Highly motivated and curious professional with 12+ years of expertise in softwar
 ---
 
 ## **Contact**  
-- **LinkedIn**: [sabareesh.com](http://sabareesh.com)  
+- **LinkedIn**: [sabareesh.com](https://www.linkedin.com/in/sabaree/)  
 - **Email**: [sabareeshkkanan@gmail.com](mailto:sabareeshkkanan@gmail.com)  
 - **Phone**: +1 760-212-1161  
