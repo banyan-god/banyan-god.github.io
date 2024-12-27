@@ -1,5 +1,5 @@
 languageCode = 'en-us'
 title = 'My New Hugo Site'
 theme = "PaperMod"
-baseURL = "https://sabareesh.com/"
+baseURL = "https://banyan-god.github.io/personal-website/"
 publishDir = "public"
