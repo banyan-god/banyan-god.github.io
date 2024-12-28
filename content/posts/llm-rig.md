@@ -71,7 +71,7 @@ You can always go with cloud for a fraction of the cost . Please check out https
   - **24 GB VRAM**: Sufficient for handling large models and datasets.
   - **BFloat16 Performance**: Fourth-generation tensor cores deliver exceptional performance with up to 330 TFLOPS of bfloat16 precision, ensuring efficient computation for AI workloads.
   - **CUDA Cores**: 16,384 CUDA cores ensure unparalleled parallel processing capabilities.
-  - **Architecture Advantages**: Enhanced ray tracing, Shader Execution Reordering, and DLSS 3 technology for improved efficiency.
+  - **Architecture Advantages**: Enhanced ray tracing, Shader Execution Reordering, and DLSS 3 technology for improved efficiency. Well this may not directly provide benefit but because this is a consumer grade card these features enabled having support for more advanced features such as bfloat16 and event float8 training support also the shear number of cuda core.
 
   A setup with **4x NVIDIA 4090s**, connected using riser cables like [this one](https://www.amazon.com/dp/B0CNNJHK93), offers top-notch performance for training LLMs. Several people discourage using just the cable due to potential PCIe errors, but in my experience, it worked flawlessly without any issues.
 
