@@ -17,7 +17,7 @@ params:
       url: "https://github.com/banyan-god"
   homeInfoParams:
     Title: "Excited for the future!"
-    Content: |
+    Content: >
           ## Hi there! 👋  
           I’m Sabareesh, a tech enthusiast and lifelong learner passionate about building scalable systems and exploring AI’s potential.<br>  
           From crafting innovative solutions to pushing the boundaries of AGI research, I thrive on solving complex problems and turning ideas into impact.<br>  
