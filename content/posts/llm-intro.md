@@ -4,6 +4,26 @@ date: 2024-12-27
 description: "An introduction to my experiences and explorations in the world of Large Language Models."
 author: "Sabareesh"
 draft: false
+summary: "Join a curious engineer’s quest into the fascinating world of Large Language Models (LLMs). From tinkering with GPUs to unraveling the mysteries of architectures like Llama2, this journey is filled with challenges, breakthroughs, and the relentless pursuit of understanding AI’s limitless potential."
+categories:
+  - Artificial Intelligence
+  - Machine Learning
+  - Technology
+  - PreTraining
+
+tags:
+  - Large Language Models
+  - LLM
+  - Llama2
+  - NanoGPT
+  - Multi-GPU Training
+  - AI Exploration
+  - Model Optimization
+  - PyTorch
+  - AI Research
+  - Deep Learning
+  - Open-Source AI
+
 ---
 
 # My Journey into Large Language Models (LLM)
