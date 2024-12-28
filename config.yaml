@@ -18,21 +18,19 @@ params:
   homeInfoParams:
     Title: "Excited for the future!"
     Content: |
-          <h2>Hi there! 👋</h2>
-          <p>I’m Sabareesh, a tech enthusiast and lifelong learner passionate about building scalable systems and exploring AI’s potential.</p>
-          <p>From crafting innovative solutions to pushing the boundaries of AGI research, I thrive on solving complex problems and turning ideas into impact.</p>
+          ## Hi there! 👋  
+          I’m Sabareesh, a tech enthusiast and lifelong learner passionate about building scalable systems and exploring AI’s potential.<br>  
+          From crafting innovative solutions to pushing the boundaries of AGI research, I thrive on solving complex problems and turning ideas into impact.<br>  
       
-          <h2>What I Do 🚀</h2>
-          <ul>
-            <li><strong>AI & ML Explorer:</strong> Experimenting with LLMs, reinforcement learning, and distributed training on custom-built hardware.</li>
-            <li><strong>Cloud Innovator:</strong> Optimizing performance and scalability with AWS, Azure, and Kubernetes.</li>
-            <li><strong>System Architect:</strong> Designing high-availability systems and leading teams to success.</li>
-          </ul>
+          ## What I Do 🚀<br>  
+          - **AI & ML Explorer**: Experimenting with LLMs, reinforcement learning, and distributed training on custom-built hardware.<br>  
+          - **Cloud Innovator**: Optimizing performance and scalability with AWS, Azure, and Kubernetes.<br>  
+          - **System Architect**: Designing high-availability systems and leading teams to success.<br>  
       
-          <h2>Fun Fact 🎉</h2>
-          <p>4x NVIDIA 4090 GPUs power my custom workstation, enabling me to experiment with cutting-edge AI models and techniques.</p>
+          ## Fun Fact 🎉<br>  
+          4x NVIDIA 4090 GPUs power my custom workstation, enabling me to experiment with cutting-edge AI models and techniques.<br>  
       
-          <p>Let’s create something extraordinary together!</p>
+          Let’s create something extraordinary together!<br>
 
 
 menu:
