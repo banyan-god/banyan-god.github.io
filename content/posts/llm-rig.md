@@ -27,8 +27,6 @@ tags:
 
 The journey into Large Language Models (LLMs) began with the electrifying moment ChatGPT made waves, sparking a realization of AI’s transformative potential. I initially dabbled with diffusion models, captivated by their ability to create stunning visuals, but the sluggish performance on an M1 chip made me crave more power. This fueled my ambition to build a custom rig with a single NVIDIA 4090 GPU. As I delved deeper into the world of LLMs, experimenting with multi-agent ecosystems, it became clear that mastering the fundamentals was paramount. Recognizing the need for multiple GPUs, I shifted focus to training LLMs from scratch, pushing beyond inference to truly understand the inner workings of these groundbreaking models.
 
-Training Large Language Models (LLMs) from scratch requires a combination of powerful hardware, efficient software configuration, and a strategic approach to ensure success.
-
 
 Here’s a comprehensive guide to building a custom rig tailored for LLM training.
 
@@ -44,27 +42,35 @@ Here’s a comprehensive guide to building a custom rig tailored for LLM trainin
 
 ## 2. Selecting Hardware Components
 
-- **Motherboard**: Choose a board with sufficient PCIe lanes to support multiple GPUs. The SuperMicro M12SWA-TF is a popular choice for high-performance builds.
+- **Motherboard**: Choose a server or workstation board, primarily for the number of PCIe lanes and compatibility with multiple GPUs. I recommend the **SuperMicro M12SWA-TF**. While it’s an excellent board, its noisy chipset fan may need replacement with a beefier heatsink and a Noctua fan.
 
-- **CPU**: Opt for a robust processor like the AMD Threadripper PRO 5955WX. The primary reason for choosing this CPU is its **128 PCIe lanes**, allowing you to connect multiple GPUs without bandwidth constraints.
+- **CPU**: Opt for a robust processor like the **AMD Threadripper PRO 5955WX**. The primary reason for choosing this CPU is its **128 PCIe lanes**, allowing you to connect multiple GPUs without bandwidth constraints.
 
-- **Memory (RAM)**: At least 128 GB of RAM is recommended to manage large datasets and minimize bottlenecks.
+- **Memory (RAM)**: Ensure compatibility between your RAM and motherboard. A setup with **128 GB memory** is recommended for large datasets and computational tasks.
 
 - **GPUs**: NVIDIA 4090 GPUs are ideal for LLM training due to their advanced Ada architecture. Key benefits include:
   - **24 GB VRAM**: Sufficient for handling large models and datasets.
-  - **Tensor Core Performance**: Fourth-generation tensor cores excel at bfloat16 precision, offering up to 660 TFLOPS of FP8 processing power.
+  - **BFloat16 Performance**: Fourth-generation tensor cores deliver exceptional performance with up to 330 TFLOPS of bfloat16 precision, ensuring efficient computation for AI workloads.
   - **CUDA Cores**: 16,384 CUDA cores ensure unparalleled parallel processing capabilities.
   - **Architecture Advantages**: Enhanced ray tracing, Shader Execution Reordering, and DLSS 3 technology for improved efficiency.
 
-  A setup with **2x NVIDIA 4090s** is a great starting point, with room to scale up to **4x NVIDIA 4090s** for advanced tasks.
+  A setup with **4x NVIDIA 4090s**, connected using riser cables like [this one](https://www.amazon.com/dp/B0CNNJHK93?ref=ppx_yo2ov_dt_b_fed_asin_title), offers top-notch performance for training LLMs. Several people discourage using just the cable due to potential PCIe errors, but in my experience, it worked flawlessly without any issues.
 
-- **Storage**: Invest in high-capacity SSDs for faster data access and efficient handling of large datasets.
+- **Storage**: Invest in high-capacity storage solutions. My setup includes **6 TB of NVMe SSDs** for blazing-fast access and **8 TB of HDD storage** for archiving.
 
-- **Cooling System**: Effective cooling (air or liquid) is crucial to maintain hardware longevity during intensive workloads.
+- **Power Supply**: Dual PSU setups are often necessary for high-power builds. I used **2x 1500 Watt Be Quiet PSUs** ([Amazon link](https://www.amazon.com/dp/B08F5DKK24?ref=ppx_yo2ov_dt_b_fed_asin_title)). Each PSU powers two GPUs, with one also powering the motherboard and CPU.
+
+- **Case/Frame**: For mounting, I recommend [this case](https://www.amazon.com/dp/B08XJGG2YX?ref=ppx_yo2ov_dt_b_fed_asin_title), which accommodates multiple GPUs and robust cooling.
+
+- **Cooling System**: Replace noisy chipset fans with heatsinks like [this one](https://www.amazon.com/dp/B074DXFB66?ref=ppx_yo2ov_dt_b_fed_asin_title) for quieter and more efficient cooling.
+
+- **Motherboard Baseboard**: Use a baseboard like [this one](https://www.amazon.com/dp/B09WHVF3SN?ref=ppx_yo2ov_dt_b_fed_asin_title) for proper fitting in the case.
 
 ---
 
 ## 3. Assembling the Rig
+
+- **Dual PSU Setup**: When using two power supplies, ensure one powers the motherboard and CPU, while each PSU powers two GPUs. Specialized adapters can help synchronize their power-on sequence.
 
 - **Compatibility Check**: Ensure all components are compatible to avoid assembly issues.
 
@@ -82,6 +88,8 @@ Here’s a comprehensive guide to building a custom rig tailored for LLM trainin
 
 - **Machine Learning Frameworks**: Set up frameworks like PyTorch or TensorFlow, essential for model training.
 
+- **Custom Kernel**: I used a [custom kernel from Tinygrad](https://github.com/tinygrad/open-gpu-kernel-modules) to enable P2P communication between GPUs, further enhancing performance.
+
 ---
 
 ## 5. Training Large Language Models
@@ -98,7 +106,7 @@ Here’s a comprehensive guide to building a custom rig tailored for LLM trainin
 
 - **Multi-GPU Training**: Use distributed training techniques such as Distributed Data Parallel (DDP) or ZeRO to fully utilize multiple GPUs.
 
-- **George’s Hack**: Leverage the [kernel patch by George Hotz](https://github.com/tinygrad/open-gpu-kernel-modules) to enable peer-to-peer (P2P) communication for NVIDIA 4xxx GPUs, overcoming the lack of official support.
+- **George’s Hack**: Leverage the [kernel patch by George Hotz](https://github.com/geohot/tinygrad) to enable peer-to-peer (P2P) communication for NVIDIA 4xxx GPUs, overcoming the lack of official support.
 
 - **Performance Tuning**: Optimize hyperparameters, batch sizes, and learning rates to achieve better convergence and efficiency.
 
