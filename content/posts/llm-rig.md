@@ -42,7 +42,7 @@ My journey into Large Language Models (LLMs) began with the excitement of seeing
 
 Here’s a comprehensive guide to building a custom rig tailored for LLM training.
 
-**Total Cost:** This entire setup cost approximately **\$12,000 USD**.
+**Total Cost:** This entire setup cost approximately **$12,000 USD**.
 
 ---
 
@@ -69,17 +69,17 @@ Here’s a comprehensive guide to building a custom rig tailored for LLM trainin
   - **CUDA Cores**: 16,384 CUDA cores ensure unparalleled parallel processing capabilities.
   - **Architecture Advantages**: Enhanced ray tracing, Shader Execution Reordering, and DLSS 3 technology for improved efficiency.
 
-  A setup with **4x NVIDIA 4090s**, connected using riser cables like [this one](https://www.amazon.com/dp/B0CNNJHK93?ref=ppx_yo2ov_dt_b_fed_asin_title), offers top-notch performance for training LLMs. Several people discourage using just the cable due to potential PCIe errors, but in my experience, it worked flawlessly without any issues.
+  A setup with **4x NVIDIA 4090s**, connected using riser cables like [this one](https://www.amazon.com/dp/B0CNNJHK93), offers top-notch performance for training LLMs. Several people discourage using just the cable due to potential PCIe errors, but in my experience, it worked flawlessly without any issues.
 
 - **Storage**: Invest in high-capacity storage solutions. My setup includes **6 TB of NVMe SSDs** for blazing-fast access and **8 TB of HDD storage** for archiving.
 
-- **Power Supply**: Dual PSU setups are often necessary for high-power builds. I used **2x 1500 Watt Be Quiet PSUs** ([Amazon link](https://www.amazon.com/dp/B08F5DKK24?ref=ppx_yo2ov_dt_b_fed_asin_title)). Each PSU powers two GPUs, with one also powering the motherboard and CPU.
+- **Power Supply**: Dual PSU setups are often necessary for high-power builds. I used **2x 1500 Watt Be Quiet PSUs** ([Amazon link](https://www.amazon.com/dp/B08F5DKK24)). Each PSU powers two GPUs, with one also powering the motherboard and CPU.
 
-- **Case/Frame**: For mounting, I recommend [this case](https://www.amazon.com/dp/B08XJGG2YX?ref=ppx_yo2ov_dt_b_fed_asin_title), which accommodates multiple GPUs and robust cooling.
+- **Case/Frame**: For mounting, I recommend [this case](https://www.amazon.com/dp/B08XJGG2YX), which accommodates multiple GPUs and robust cooling.
 
-- **Cooling System**: Replace noisy chipset fans with heatsinks like [this one](https://www.amazon.com/dp/B074DXFB66?ref=ppx_yo2ov_dt_b_fed_asin_title) for quieter and more efficient cooling.
+- **Cooling System**: Replace noisy chipset fans with heatsinks like [this one](https://www.amazon.com/dp/B074DXFB66) for quieter and more efficient cooling.
 
-- **Motherboard Baseboard**: Use a baseboard like [this one](https://www.amazon.com/dp/B09WHVF3SN?ref=ppx_yo2ov_dt_b_fed_asin_title) for proper fitting in the case.
+- **Motherboard Baseboard**: Use a baseboard like [this one](https://www.amazon.com/dp/B09WHVF3SN) for proper fitting in the case.
 
 ---
 
