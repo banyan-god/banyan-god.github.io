@@ -44,6 +44,8 @@ Here’s a comprehensive guide to building a custom rig tailored for LLM trainin
 
 **Total Cost:** This entire setup cost approximately **$12,000 USD**.
 
+[Next Step: My journey into LLMs](https://sabareesh.com/posts/llm-intro/)
+
 ---
 
 ## 1. Planning Your Build
