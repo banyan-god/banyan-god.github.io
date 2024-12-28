@@ -146,7 +146,6 @@ Easwari Engineering College, Anna University, Chennai, India – 2010
 
 - **Operating Systems:** Windows, Linux, AIX, macOS, Android, iOS, Alpine
 - **Development Tools:** IntelliJ, Eclipse, Visual Studio, Android Studio, XCode
-- **Certifications:** (Add relevant certifications here)
 
 # Professional Attributes
 
