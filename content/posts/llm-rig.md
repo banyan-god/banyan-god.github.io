@@ -29,9 +29,6 @@ The journey into Large Language Models (LLMs) began with the electrifying moment
 
 Training Large Language Models (LLMs) from scratch requires a combination of powerful hardware, efficient software configuration, and a strategic approach to ensure success.
 
-## Visual Inspiration
-- **Initial Build**: Rig with 2x NVIDIA 4090 GPUs.
-- **Upgraded Build**: Rig with 4x NVIDIA 4090 GPUs.
 
 Here’s a comprehensive guide to building a custom rig tailored for LLM training.
 
