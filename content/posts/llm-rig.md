@@ -6,9 +6,9 @@ description: "How I built an ML rig for training LLMs locally, exploring hardwar
 author: "Sabareesh"
 draft: false
 summary: "How I built an ML rig for training LLMs locally, exploring hardware choices, setup tricks, and lessons learned along the way."
-
 images:
-  -  "/blog-images/ws-1.jpeg"
+  - "/blog-images/ws-1.jpeg"
+
 
 categories:
 
