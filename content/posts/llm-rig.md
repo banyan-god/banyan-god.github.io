@@ -42,7 +42,9 @@ My journey into Large Language Models (LLMs) began with the excitement of seeing
 
 Here’s a comprehensive guide to building a custom rig tailored for LLM training.
 
-**Total Cost:** This entire setup cost approximately **$12,000 USD**.
+**Total Cost:** This entire setup cost approximately **$12,000 USD**. This may not be cost effective but I wanted to get hands on and do more experimentation. 
+
+You can always go with cloud for a fraction of the cost . Please check out https://lambdalabs.com/ ,https://hyperbolic.xyz/ and several others
 
 [Next Step: My journey into LLMs](https://sabareesh.com/posts/llm-intro/)
 
