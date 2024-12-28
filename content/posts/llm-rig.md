@@ -1,11 +1,11 @@
 ---
 
-title: "Training LLMs: Building Your Own Local Rig"
+title: "All You Need is 4x 4090 GPUs to Train Your Own Model"
 date: 2024-12-28T08:00:00
-description: "A humble and practical guide to building your own rig for training LLMs locally, featuring essential tips and real-world insights."
+description: "How I built an ML rig for training LLMs locally, exploring hardware choices, setup tricks, and lessons learned along the way."
 author: "Sabareesh"
 draft: false
-summary: "A practical guide to building a local rig for training LLMs, with detailed hardware recommendations, setup insights, and optimization tips."
+summary: "How I built an ML rig for training LLMs locally, exploring hardware choices, setup tricks, and lessons learned along the way."
 
 
 categories:
@@ -31,6 +31,8 @@ tags:
 The journey into Large Language Models (LLMs) began with the electrifying moment ChatGPT made waves, sparking a realization of AI’s transformative potential. 🌟 I initially dabbled with diffusion models, captivated by their ability to create stunning visuals, but the sluggish performance on an M1 chip made me crave more power. 💻 This fueled my ambition to build a custom rig with a single NVIDIA 4090 GPU. As I delved deeper into the world of LLMs, experimenting with multi-agent ecosystems, it became clear that mastering the fundamentals was paramount. Recognizing the need for multiple GPUs, I shifted focus to training LLMs from scratch, pushing beyond inference to truly understand the inner workings of these groundbreaking models. 🚀
 
 ## Rig Evolution
+
+![Rig with 2x NVIDIA 4090 GPUs](/blog-images/ws-1.jpeg)
 
 
 
@@ -143,6 +145,8 @@ Here’s a comprehensive guide to building a custom rig tailored for LLM trainin
 - **Community Resources**: Explore tutorials from experts like [Andrej Karpathy](https://github.com/karpathy/nanoGPT) and guides from Hugging Face for additional insights. 🌍
 
 Building a rig for LLM training is a challenging but rewarding endeavor that opens up opportunities to push the boundaries of AI development. With careful planning and execution, your custom setup can become a powerful tool for exploring the vast landscape of machine learning. 🚀
+
+![Rig with 4x NVIDIA 4090 GPUs](/blog-images/ws-2.jpeg)
 
 
 
