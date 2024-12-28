@@ -1,5 +1,4 @@
 ---
-![Rig with 2x NVIDIA 4090 GPUs](/blog-images/ws-1.jpeg)
 
 title: "Training LLMs: Building Your Own Local Rig"
 date: 2024-12-28
@@ -30,6 +29,8 @@ tags:
 The journey into Large Language Models (LLMs) began with the electrifying moment ChatGPT made waves, sparking a realization of AI’s transformative potential. I initially dabbled with diffusion models, captivated by their ability to create stunning visuals, but the sluggish performance on an M1 chip made me crave more power. This fueled my ambition to build a custom rig with a single NVIDIA 4090 GPU. As I delved deeper into the world of LLMs, experimenting with multi-agent ecosystems, it became clear that mastering the fundamentals was paramount. Recognizing the need for multiple GPUs, I shifted focus to training LLMs from scratch, pushing beyond inference to truly understand the inner workings of these groundbreaking models.
 
 ## Rig Evolution
+
+![Rig with 2x NVIDIA 4090 GPUs](/blog-images/ws-1.jpeg)
 
 Note: This setup is capable of training models with up to 1 billion parameters; however, it performs better with \~500 million parameter models to achieve higher model utilization (MFU).
 
