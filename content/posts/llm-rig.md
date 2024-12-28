@@ -1,3 +1,4 @@
+---
 title: "All You Need is 4x 4090 GPUs to Train Your Own Model"
 date: 2024-12-28T08:00:00
 description: "How I built an ML rig for training LLMs locally, exploring hardware choices, setup tricks, and lessons learned along the way."
