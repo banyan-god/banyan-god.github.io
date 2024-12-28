@@ -77,7 +77,7 @@ You can always go with cloud for a fraction of the cost . Please check out https
 
 - **Storage**: Invest in high-capacity storage solutions. My setup includes **6 TB of NVMe SSDs** for blazing-fast access and **8 TB of HDD storage** for archiving.
 
-- **Power Supply**: Dual PSU setups are often necessary for high-power builds. I used **2x 1500 Watt Be Quiet PSUs** ([Amazon link](https://www.amazon.com/dp/B08F5DKK24)). Each PSU powers two GPUs, with one also powering the motherboard and CPU.
+- **Power Supply**: Dual PSU setups are often necessary for high-power builds. I used **2x 1500 Watt Be Quiet PSUs** ([Amazon link](https://www.amazon.com/dp/B08F5DKK24)). Each PSU powers two GPUs, with one also powering the motherboard and CPU. Each GPU was consuming around 450W of power using DDP 500M model for ~10 days
 
 - **Case/Frame**: For mounting, I recommend [this case](https://www.amazon.com/dp/B08XJGG2YX), which accommodates multiple GPUs and robust cooling.
 
