@@ -18,14 +18,19 @@ params:
   homeInfoParams:
     Title: "Excited for the future!"
     Content: >
-      👋 Welcome to demo page of Hugo's theme PaperMod!
-
-      - **PaperMod**  is designed to be clean and simple but fast and responsive theme with useful feature-set that enhances UX.
-
-      - Feel free to show your support by giving us a star 🌟 on GitHub and sharing with your friends and social media .
-
-      - PaperMod is based on theme [Paper](https://github.com/nanxiaobei/hugo-paper/tree/4330c8b12aa48bfdecbcad6ad66145f679a430b3).
-
+      ## Hi there! 👋  
+      I’m Sabareesh, a tech enthusiast and lifelong learner passionate about building scalable systems and exploring AI’s potential.
+      From crafting innovative solutions to pushing the boundaries of AGI research, I thrive on solving complex problems and turning ideas into impact.
+  
+      ## What I Do 🚀
+      - **AI & ML Explorer**: Experimenting with LLMs, reinforcement learning, and distributed training on custom-built hardware.
+      - **Cloud Innovator**: Optimizing performance and scalability with AWS, Azure, and Kubernetes.
+      - **System Architect**: Designing high-availability systems and leading teams to success. 
+  
+      ## Fun Fact 🎉
+      4x NVIDIA 4090 GPUs power my custom workstation, enabling me to experiment with cutting-edge AI models and techniques.
+  
+      Let’s create something extraordinary together!
 
 
 menu:
