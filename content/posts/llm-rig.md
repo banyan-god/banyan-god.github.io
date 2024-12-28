@@ -89,7 +89,7 @@ You can always go with cloud for a fraction of the cost . Please check out https
 
 ## 3. Assembling the Rig
 
-- **Dual PSU Setup**: When using two power supplies, ensure one powers the motherboard and CPU, while each PSU powers two GPUs. Specialized adapters can help synchronize their power-on sequence.
+- **Dual PSU Setup**: When using two power supplies, ensure one powers the motherboard and CPU, while each PSU powers two GPUs. Specialized adapters can help synchronize their power-on sequence. This needs 30 AMP circuit, you  might able to connect it to 2 different breakers but this is not recommended.
 
 - **Compatibility Check**: Ensure all components are compatible to avoid assembly issues.
 
