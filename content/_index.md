@@ -1,5 +1,4 @@
-Sabareesh Subramani
-Chief Technology Officer
+# Sabareesh Subramanir
 [https://sabareesh.com](https://sabareesh.com) | [LinkedIn](https://www.linkedin.com/in/sabaree/) | [me@sabareesh.com](mailto:me@sabareesh.com)
 
 # Professional Summary
