@@ -28,7 +28,7 @@ tags:
 
 # Training LLMs: Building Your Own Local Rig
 
-The journey into Large Language Models (LLMs) began with the electrifying moment ChatGPT made waves, sparking a realization of AI’s transformative potential. I initially dabbled with diffusion models, captivated by their ability to create stunning visuals, but the sluggish performance on an M1 chip made me crave more power. This fueled my ambition to build a custom rig with a single NVIDIA 4090 GPU. As I delved deeper into the world of LLMs, experimenting with multi-agent ecosystems, it became clear that mastering the fundamentals was paramount. Recognizing the need for multiple GPUs, I shifted focus to training LLMs from scratch, pushing beyond inference to truly understand the inner workings of these groundbreaking models.
+My journey into Large Language Models (LLMs) began with the excitement of seeing ChatGPT in action. I started by exploring diffusion models, drawn to their ability to create beautiful visuals. However, working on an M1 chip had its limitations, which motivated me to build a custom rig with an NVIDIA 4090 GPU. As I continued to explore LLMs and experimented with multi-agent systems, I came to realize the importance of mastering the fundamentals. This realization led me to focus on training LLMs from scratch—not just to use them but to deeply understand how they function and evolve.
 
 ## Rig Evolution
 
