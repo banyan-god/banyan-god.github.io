@@ -1,32 +1,40 @@
 ---
-title: "Building a Rig to Train LLMs from Scratch"
+![Rig with 2x NVIDIA 4090 GPUs](/blog-images/ws-1.jpeg)
+
+title: "Training LLMs: Building Your Own Local Rig"
 date: 2024-12-28
 description: "A comprehensive guide to building a custom rig for training Large Language Models (LLMs), including hardware selection, software setup, and optimization tips."
 author: "Sabareesh"
 draft: false
-summary: "Learn how to build a powerful rig for training LLMs, complete with detailed hardware recommendations, software setup, and key insights for scaling and optimization."
+summary: "Learn how to build a powerful rig for training LLMs locally, complete with detailed hardware recommendations, software setup, and key insights for scaling and optimization."
 categories:
-  - Artificial Intelligence
-  - Technology
-  - Machine Learning
-  - Hardware
+
+- Artificial Intelligence
+- Technology
+- Machine Learning
+- Hardware
 
 tags:
-  - LLM Training
-  - NVIDIA 4090
-  - Threadripper PRO
-  - Multi-GPU Training
-  - Distributed Training
-  - PyTorch
-  - TensorFlow
+
+- LLM Training
+- NVIDIA 4090
+- Threadripper PRO
+- Multi-GPU Training
+- Distributed Training
+- PyTorch
+
 ---
 
-![Rig with 2x NVIDIA 4090 GPUs](/blog-images/ws-1.jpeg)
-
-# Building a Rig to Train LLMs from Scratch
+# Training LLMs: Building Your Own Local Rig
 
 The journey into Large Language Models (LLMs) began with the electrifying moment ChatGPT made waves, sparking a realization of AI’s transformative potential. I initially dabbled with diffusion models, captivated by their ability to create stunning visuals, but the sluggish performance on an M1 chip made me crave more power. This fueled my ambition to build a custom rig with a single NVIDIA 4090 GPU. As I delved deeper into the world of LLMs, experimenting with multi-agent ecosystems, it became clear that mastering the fundamentals was paramount. Recognizing the need for multiple GPUs, I shifted focus to training LLMs from scratch, pushing beyond inference to truly understand the inner workings of these groundbreaking models.
 
+## Rig Evolution
+
+Note: This setup is capable of training models with up to 1 billion parameters; however, it performs better with \~500 million parameter models to achieve higher model utilization (MFU).
+
+- **Initial Build**: Rig with 2x NVIDIA 4090 GPUs.
+- **Upgraded Build**: Rig with 4x NVIDIA 4090 GPUs.
 
 Here’s a comprehensive guide to building a custom rig tailored for LLM training.
 
@@ -49,6 +57,7 @@ Here’s a comprehensive guide to building a custom rig tailored for LLM trainin
 - **Memory (RAM)**: Ensure compatibility between your RAM and motherboard. A setup with **128 GB memory** is recommended for large datasets and computational tasks.
 
 - **GPUs**: NVIDIA 4090 GPUs are ideal for LLM training due to their advanced Ada architecture. Key benefits include:
+
   - **24 GB VRAM**: Sufficient for handling large models and datasets.
   - **BFloat16 Performance**: Fourth-generation tensor cores deliver exceptional performance with up to 330 TFLOPS of bfloat16 precision, ensuring efficient computation for AI workloads.
   - **CUDA Cores**: 16,384 CUDA cores ensure unparalleled parallel processing capabilities.
