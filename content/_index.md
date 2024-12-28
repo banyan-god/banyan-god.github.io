@@ -1,4 +1,4 @@
-# Sabareesh Subramanir
+# Sabareesh Subramani
 [https://sabareesh.com](https://sabareesh.com) | [LinkedIn](https://www.linkedin.com/in/sabaree/) | [me@sabareesh.com](mailto:me@sabareesh.com)
 
 # Professional Summary
