@@ -2,6 +2,7 @@ languageCode: "en-us"
 theme: "PaperMod"
 baseURL: "/"
 publishDir: "public"
+title: AGI
 params:
   env: production 
   ShowReadingTime: true
@@ -15,7 +16,7 @@ params:
     - name: "github"
       url: "https://github.com/banyan-god"
   homeInfoParams:
-    Title: ""
+  Title: "Excited for the future !"
     Content: |
       ## Hi there! 👋
       I’m Sabareesh, a tech enthusiast and lifelong learner passionate about building scalable systems and exploring AI’s potential. From crafting innovative solutions to pushing the boundaries of AGI research, I thrive on solving complex problems and turning ideas into impact.
