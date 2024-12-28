@@ -3,6 +3,7 @@ title: "Defining AGI"
 date: 2024-12-28
 author: "Sabareesh"
 draft: false
+summary: "A thoughtful exploration of Artificial General Intelligence (AGI) through three fundamental concepts."
 categories:
   - Artificial Intelligence
   - Technology
