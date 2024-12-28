@@ -7,3 +7,7 @@ publishDir = "public"
 name = "Blog"
 url = "/posts/"
 weight = 2
+[[menu.main]]
+name = "Resume"
+url = "/resume/"
+weight = 2
