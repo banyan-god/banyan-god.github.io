@@ -14,7 +14,8 @@ tags:
   - Future Technology
   - Cognitive Science
 ---
-  
+Hello here is my humble attempt to define what AGI is, may be we should version the AGI v1
+
 ### 1. The Capacity to Handle a Wide Range of Intellectual Tasks
 
 Imagine being able to read a book, do some math, or solve a puzzle—all within the same system. AGI aims to achieve this level of versatility, unlike today's narrow AI systems that excel at specific tasks (like playing chess or recognizing faces). The goal of AGI is to create a single system capable of managing various tasks, much like how a person can adapt to different activities.
