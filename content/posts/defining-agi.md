@@ -14,7 +14,7 @@ tags:
   - Future Technology
   - Cognitive Science
 ---
-Hello here is my humble attempt to define what AGI is, may be we should version the AGI v1
+Hello here is my humble attempt to define what AGI is, may be we should version it AGI v1
 
 ### 1. The Capacity to Handle a Wide Range of Intellectual Tasks
 
