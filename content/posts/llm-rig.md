@@ -99,6 +99,7 @@ You can always go with cloud for a fraction of the cost . Please check out https
 - **Cable Management**: Organize cables neatly to improve airflow and simplify maintenance.
 
 ---
+![Rig with 4x NVIDIA 4090 GPUs](/blog-images/ws-2.jpeg)
 
 ## 4. Software Configuration
 
@@ -121,6 +122,7 @@ You can always go with cloud for a fraction of the cost . Please check out https
 - **Training Process**: Initiate training, monitor resource utilization, and adjust configurations as needed for optimal results.
 
 ---
+![Training with 4x NVIDIA 4090 GPUs](/blog-images/4x4090_~100mfu_training.jpg)
 
 ## 6. Optimization and Scaling
 
@@ -149,6 +151,4 @@ You can always go with cloud for a fraction of the cost . Please check out https
 - **Community Resources**: Explore tutorials from experts like [Andrej Karpathy](https://github.com/karpathy/nanoGPT) and guides from Hugging Face for additional insights.
 
 Building a rig for LLM training is a challenging but rewarding endeavor that opens up opportunities to push the boundaries of AI development. With careful planning and execution, your custom setup can become a powerful tool for exploring the vast landscape of machine learning.
-
-![Rig with 4x NVIDIA 4090 GPUs](/blog-images/ws-2.jpeg)
 
