@@ -27,7 +27,7 @@ At a glance:
 ```json
 {
   "tool_rules": {
-    "browser_navigate": {"enabled": true, "max_tokens": 6000}
+    "browser_navigate": {"enabled": true, "max_tokens": 6000, "preservation_instruction": "Keep links, buttons, headings, visible text; drop scripts/hidden divs."}
   }
 }
 ```
