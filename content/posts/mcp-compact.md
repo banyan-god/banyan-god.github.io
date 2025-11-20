@@ -15,6 +15,8 @@ Why it is useful:
 - Works over StreamableHTTP, so progress and streaming stay intact.
 - Reconnects to the upstream if sessions drop, so long runs do not die mid-task.
 
+Example: a `browser_navigate` call can return a 100k+ character DOM dump with every script tag and hidden div. MCP Compact keeps the key UI elements and text in a few thousand tokens so the agent stays focused instead of drowning in markup.
+
 How to run (local):
 ```bash
 MCP_PROXY_CONFIG_FILE=config.json \
@@ -33,3 +35,5 @@ docker compose up --build mcp-proxy
 ```
 
 That is it—drop the proxy in front of your MCP server and keep the agent focused on the important bits.
+
+Extensible: rules are per-tool, so you can add new MCP tools or tighten/loosen budgets without touching the agent. The proxy is open source at https://github.com/banyan-god/mcp-compact.
