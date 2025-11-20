@@ -4,6 +4,8 @@ date: 2025-11-20
 description: "A proxy that trims noisy tool outputs so MCP agents stay on track."
 author: "Sabareesh"
 draft: false
+tags: ["MCP", "AI agents", "LLM", "context", "summarization", "StreamableHTTP", "proxy"]
+categories: ["automation", "infrastructure"]
 ---
 
 The problem: MCP agents return bulky tool outputs (screenshots, DOM dumps, network traces) and quickly blow past context limits. Downstream steps stall or get fuzzy because the signal is buried.
