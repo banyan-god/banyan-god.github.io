@@ -1,0 +1,65 @@
+{{- /* Override to emit valid JSON-LD and avoid minify parse errors. */ -}}
+{{- if .IsPage }}
+  {{- /* Collect candidate images. */ -}}
+  {{- $images := slice }}
+  {{- if .Params.cover.image }}
+    {{- if not (eq .Params.cover.relative true) -}}
+      {{- $images = $images | append (.Params.cover.image | absURL) -}}
+    {{- else -}}
+      {{- $images = $images | append ((path.Join .RelPermalink .Params.cover.image) | absURL) -}}
+    {{- end -}}
+  {{- else -}}
+    {{- with partial "_funcs/get-page-images" . -}}
+      {{- range . }}{{ $images = $images | append .Permalink }}{{ end -}}
+    {{- end -}}
+  {{- end -}}
+
+  {{- $image := "" -}}
+  {{- with index $images 0 }}{{ $image = . }}{{ end -}}
+
+  {{- /* Normalize authors to JSON-LD format. */ -}}
+  {{- $authorParam := .Params.author | default site.Params.author -}}
+  {{- $authors := slice -}}
+  {{- with $authorParam -}}
+    {{- $isList := or (eq (printf "%T" .) "[]string") (eq (printf "%T" .) "[]interface {}") -}}
+    {{- if $isList -}}
+      {{- range . }}{{ $authors = $authors | append (dict "@type" "Person" "name" .) }}{{ end -}}
+    {{- else -}}
+      {{- $authors = $authors | append (dict "@type" "Person" "name" .) -}}
+    {{- end -}}
+  {{- end -}}
+
+  {{- $keywords := cond (isset .Params "keywords") .Params.keywords .Params.tags -}}
+  {{- $description := cond .Description (.Description | plainify) (.Summary | plainify) -}}
+
+  {{- $data := dict
+    "@context" "https://schema.org"
+    "@type" "BlogPosting"
+    "headline" (.Title | plainify)
+    "name" (.Title | plainify)
+    "description" $description
+    "keywords" ($keywords | default (slice))
+    "articleBody" .Plain
+    "wordCount" .WordCount
+    "inLanguage" (.Language.Lang | default "en-us")
+    "datePublished" (.PublishDate.Format "2006-01-02T15:04:05Z07:00")
+    "dateModified" (.Lastmod.Format "2006-01-02T15:04:05Z07:00")
+    "mainEntityOfPage" (dict "@type" "WebPage" "@id" .Permalink)
+    "publisher" (dict
+      "@type" ((site.Params.schema.publisherType | default "Organization") | title)
+      "name" site.Title
+      "logo" (dict "@type" "ImageObject" "url" (site.Params.assets.favicon | default "favicon.ico" | absURL))
+    )
+  -}}
+
+  {{- if $image }}
+    {{- $data = merge $data (dict "image" $image) -}}
+  {{- end -}}
+
+  {{- if $authors }}
+    {{- $authorValue := cond (gt (len $authors) 1) $authors (index $authors 0) -}}
+    {{- $data = merge $data (dict "author" $authorValue) -}}
+  {{- end -}}
+
+  <script type="application/ld+json">{{ $data | jsonify | safeJS }}</script>
+{{- end }}
