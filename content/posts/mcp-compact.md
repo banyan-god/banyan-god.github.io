@@ -16,24 +16,17 @@ Why it is useful:
 - Reconnects to the upstream if sessions drop, so long runs do not die mid-task.
 
 Example: a `browser_navigate` call can return a 100k+ character DOM dump with every script tag and hidden div. MCP Compact keeps the key UI elements and text in a few thousand tokens so the agent stays focused instead of drowning in markup.
+Extensible:
+- Per-tool rules let you tighten/loosen budgets as you add new MCP tools.
+- Swappable summarizer: any LLM endpoint works; only needs tokens and a model name.
+- Structured logging instead of guesswork: you see token counts, clipping, and summary lengths in one place.
+- Session resilience: automatic reconnect to the upstream keeps long chains alive.
 
-How to run (local):
-```bash
-MCP_PROXY_CONFIG_FILE=config.json \
-MCP_UPSTREAM_URL=http://localhost:8931/mcp \
-BASE_URL=http://localhost:8080/v1 \
-API_KEY=dev-key \
-MODEL_NAME=openai/gpt-oss-120b \
-python -m mcp_proxy --host localhost --port 8009
+How it sits in the flow:
+```
+Agent → MCP Compact → Upstream MCP Server
+          ↓
+      LLM Summarizer
 ```
 
-Tuning: edit `config.json` to pick which tools are summarized and how many tokens to keep. Leave a rule disabled to passthrough unchanged.
-
-If you prefer containers:
-```bash
-docker compose up --build mcp-proxy
-```
-
-That is it—drop the proxy in front of your MCP server and keep the agent focused on the important bits.
-
-Extensible: rules are per-tool, so you can add new MCP tools or tighten/loosen budgets without touching the agent. The proxy is open source at https://github.com/banyan-god/mcp-compact.
+More details, configs, and run commands live in the repo: https://github.com/banyan-god/mcp-compact.
