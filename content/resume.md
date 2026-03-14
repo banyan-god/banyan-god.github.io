@@ -1,158 +1,132 @@
 # Sabareesh Subramani
-CTO
-[https://sabareesh.com](https://sabareesh.com) | [LinkedIn](https://www.linkedin.com/in/sabaree/) | [me@sabareesh.com](mailto\:me@sabareesh.com) 
 
-# Professional Summary
+[https://sabareesh.com](https://sabareesh.com) | [LinkedIn](https://www.linkedin.com/in/sabaree/) | [hello@sabareesh.com](mailto:hello@sabareesh.com)
 
-Dynamic and results-driven Chief Technology Officer with over 12 years of comprehensive experience in software development, architecture, and leadership. Renowned for exceptional problem-solving abilities and a strategic approach to overcoming complex technical challenges. Expertise in Java, C#, microservices, and cloud technologies (Azure, AWS, GCP), coupled with a proven track record of leading cross-functional teams to deliver high-availability systems. Adept at driving technological innovations, optimizing system performance, and implementing scalable solutions that support business growth and operational excellence. Recently expanded expertise into Machine Learning through dedicated personal projects, demonstrating a commitment to continuous learning and technological advancement.
+## Summary
 
-# Machine Learning Journey
+Machine learning engineer building end-to-end AI trading systems — from pre-training LLMs from scratch to fine-tuning Qwen3-4B on proprietary financial datasets and training trading decision models with GRPO reinforcement learning. Operates custom GPU infrastructure (4x RTX 4090 + 2x RTX PRO 6000 Blackwell) for continuous experimentation. Developed a multi-stage waterfall pipeline (equity knowledge injection → instruct alignment → stock prediction → trade execution) achieving 100% format validity and +9.4% portfolio return. Designed microagent architectures for autonomous equity research and a multi-agent personal AI runtime. 14 years of production software engineering experience as CTO, with deep expertise in scalable systems, Kubernetes, and cloud infrastructure.
 
-- Initiated my exploration of Large Language Models (LLMs) inspired by the breakthrough of ChatGPT, leading to building a dedicated system with an NVIDIA 4090 GPU for experimentation.
-- Gained foundational knowledge from resources like Karpathy’s tutorials, progressing from basic neural networks to implementing NanoGPT models.
-- Built a robust workstation with a SuperMicro motherboard, AMD Threadripper PRO CPU, and four NVIDIA 4090 GPUs, enabling efficient multi-GPU training and experimentation with distributed techniques like DDP and ZeRO.
-- Fine-tuned Llama2-based models using datasets like FineWeb and Dolphin, employing optimizers like bnb.optim.AdamW8bit for VRAM efficiency.
-- Published findings on Weights & Biases and Hugging Face, sharing insights into training and fine-tuning models within constrained hardware setups.
-- Explored reinforcement learning (RL) frameworks such as OpenAI Gym and TorchRL, focusing on designing effective environments and analyzing the performance of MLPs versus Transformers in RL tasks.
+## Technical Skills
 
-# Core Skills
+- **LLM Training:** PyTorch, torchtune, torchao (float8/4-bit quantized training), TRL, NeMo-RL (GRPO/DAPO), DDP, FSDP/FSDP2, torchrun, vLLM, llama.cpp, Cut Cross-Entropy
+- **Model Architectures:** Qwen3-4B, Llama 2/3, DeepSeek R1, GPT-2/NanoGPT, custom Transformer encoders
+- **RL for LLMs:** GRPO, DAPO, PPO, TorchRL, volatility-normalized reward functions, counterfactual opportunity regret, hold-penalty scheduling, reward shaping for trading
+- **Agent Systems:** OpenAI Agents SDK, MCP (Model Context Protocol), multi-agent orchestration, context compaction, semantic memory, WandB Weave observability
+- **ML Infrastructure:** WandB, HuggingFace Hub, CUDA, Ray, multi-GPU training (4x RTX 4090, 2x RTX PRO 6000 Blackwell), checkpoint management, vLLM evaluation pipelines
+- **Languages:** Python, Java, Swift, C, C++, TypeScript, C#
+- **Backend & Infrastructure:** FastAPI, Spring Boot/Cloud, SQLAlchemy, Docker, Kubernetes, Azure, AWS, SQL Server, Kafka, Elasticsearch
 
-- Machine Learning: Python, PyTorch, TorchRL, TensorFlow, Scikit-learn, Data Analysis, Model Deployment
-- **Programming Languages:** Java, C#, PHP, C, C++, Objective-C, VB
-- **Frameworks & Libraries:** Spring Boot, Spring Cloud, .NET, Angular, React, Backbone.js, RxJava
-- **Cloud Platforms:** AWS (EC2, ECS, RDS, S3), Azure, GCP, Kubernetes, AKS, Docker
-- **Databases:** MongoDB, SQL Server, MySQL, MariaDB, PostgreSQL
-- **DevOps & Tools:** Git, Jenkins, Azure devops, Maven, Gradle, Docker, Kubernetes, Terraform, JIRA, Asana
-- **Architecture:** Microservices, RESTful APIs, SOA, Object-Oriented Design (OOD)
-- **Other Technologies:** Kafka, RabbitMQ, Elasticsearch, Redis, Apache Camel, Drools
+## AI & ML Projects
 
+### Qwen3-4B Financial Trading Model — SFT + RL Pipeline
 
+Multi-stage waterfall fine-tuning and reinforcement learning pipeline for training an autonomous equity trading decision model on Qwen3-4B.
 
-# Professional Experience
+**Supervised Fine-Tuning (5-stage waterfall):**
+- Built dataset pipelines exporting equity reports (5,176 reports), stock prediction data (103K records across 94 symbols), and trading decisions from SQL Server into structured JSONL.
+- Trained through 5 stages: equity knowledge injection, Alpaca instruct alignment, stock prediction (achieved ~5-6% MAPE), stateful trading decisions, and distributed training.
+- Developed weighted CCE loss (using Apple's Cut Cross-Entropy — 4.7x faster, 3.2x less memory) with conditional per-field, per-sample weights. Enter-critical fields (decision, side, stop_loss) weighted 4-8x; hold-null fields suppressed.
+- Diagnosed and solved hold-collapse failure mode where model learned trivial all-hold policy due to class imbalance. Identified epoch12 checkpoint as optimal recovery base over epoch15/18.
 
-## GuidedChoice, CA
+**Key result — best checkpoint (v2 weighted CCE):** 100% format validity, 13.3% enter rate, 136 trades, $109,428 final equity (+9.4% return) on 1024-record portfolio evaluation.
 
-### Chief Technology Officer
+**Reinforcement Learning (current phase):**
+- Pivoting from SFT to GRPO after SFT hit its ceiling — model imitates oracle at 80% match rate but captures <10% of oracle alpha (oracle uses future information).
+- Designed volatility-normalized, bounded reward function [-2, +2]: `0.8 * pnl_score - 0.2 * dd_penalty` using `tanh(return / sigma_h)` for enters; counterfactual opportunity regret for holds (penalizes missing >1.25 sigma moves).
+- Research survey covering Trading-R1 (Sharpe 2.72 on NVDA), FLAG-Trader (LLM as RL policy with LoRA + PPO), Alpha-R1, HCAPO (hindsight critic), and DAPO at FinRL Contest 2025 (230% cumulative return).
+- Designed "Living Trader" architecture with 4 loops: real-time inference, daily experience collection, weekly RL training, continuous self-research.
 
-*May 2022 – Present*
+**Scientific methodology:** Maintained experiment journal with 13+ dated entries, formal scientific reports, per-experiment leaderboards with 12 ranked runs, defined alpha thesis with explicit falsification criteria, and automated phase gates for SFT → RL → regime adaptation → paper deployment.
 
-- Lead architecture, engineering, design, security, and infrastructure teams to deliver robust technology solutions.
-- Achieved and maintained over 99.9% uptime across all services, ensuring high reliability and customer satisfaction.
-- Spearheaded the migration from Docker Swarm to Kubernetes, significantly enhancing system scalability and resilience.
-- Implemented cutting-edge technologies to optimize system performance and streamline development processes.
-- **Technologies Used:** Java, Spring Cloud, Docker, Kubernetes, Azure, Kafka, SQL Server, Elasticsearch, React
+- **Technologies:** torchtune, TRL, NeMo-RL (Ray + vLLM), Cut Cross-Entropy, vLLM, llama.cpp, PyTorch distributed, SQL Server
+- **Hardware:** 2x NVIDIA RTX PRO 6000 Blackwell (96GB each), 4x RTX 4090
 
-### Product Manager, Architect, Lead Developer
+### Autonomous Equity Research Agent
+- Designed and built an autonomous equity research and watchlist curation system using the OpenAI Agents SDK with MCP browser automation.
+- Implemented a microagent architecture (Topic Scanner → Symbol Assessor → Job Orchestrator) to solve context overflow problems in monolithic agent designs.
+- Integrated confidence-scored watchlist management, social sentiment analysis, and market cap filtering with full observability via WandB Weave.
+- **Technologies:** OpenAI Agents SDK, MCP, SQL Server, SearXNG, WandB Weave, asyncio
 
-*Sep 2017 – May 2022*
+### Jarvis — Multi-Agent Personal AI Runtime
+- Built a personal AI assistant runtime with event-driven Signal messaging, SQL-backed semantic memory, and a layered persona/identity system (SOUL, IDENTITY, BOOTSTRAP).
+- Features heartbeat-driven periodic automation, local skill execution (E\*TRADE integration, linked-account transactions, health data explorer), and multi-provider AI support (Claude, OpenAI, Codex).
+- Deployed as systemd services with Signal CLI daemon for real-time communication.
+- **Technologies:** Python, SQLAlchemy, Signal CLI (JSON-RPC + SSE), systemd, OpenAI/Claude/Codex APIs
 
-- Directed the development and architecture of a scalable microservices application, facilitating seamless business operations.
-- Successfully migrated features from legacy systems to modern architectures, enhancing system flexibility and maintainability.
-- Mentored and guided team members on Spring Cloud and microservices best practices, fostering a culture of continuous improvement.
-- Integrated diverse client systems and managed data migration from Oracle to MS SQL, ensuring data integrity and accessibility.
-- **Technologies Used:** Java, Azure, Spring Cloud, Feign, Docker, SQL Server, React.js
+### Agent SDK — Reusable AI Agent Framework
+- Built a clean, extensible SDK for AI agents with tool-calling capabilities, MCP integration, and automatic semantic context compaction at 80% token limits.
+- Factory pattern enables multi-agent systems with specialist agent composition. Powers the equity research agent and other projects.
+- **Technologies:** Python, OpenAI API, MCP, Playwright (browser automation via MCP), Logfire
 
-## ARS, CA, USA
+### LlamaCraft — LLM Pre-Training from Scratch
+- Pre-trained Llama 2 models from scratch on FineWeb-Edu using a custom 4x RTX 4090 workstation.
+- Implemented quantized training with torchao (float8, AdamW8bit, AdamW4bit, AdamWFp8) and CPU offloading. Trained with DDP via torchrun.
+- Published results on Weights & Biases and exported models to HuggingFace.
+- **Technologies:** PyTorch, torchao, DDP/torchrun, FSDP, HuggingFace, WandB
 
-### Enterprise Architect & Senior Developer
+### torchtitan — Custom Distributed Training Platform
+- Extended PyTorch's torchtitan with checkpoint utilities for cross-world-size resumption, gradient accumulation memory optimization, and custom finance dataset integration (FNSPID).
+- Built HuggingFace inference pipelines and model conversion tooling.
+- **Technologies:** PyTorch, FSDP2, Tensor/Pipeline/Context Parallel, Float8, DCP
 
-*Aug 2013 – Sep 2017*
+### MCP Compact — Context Optimization Proxy
+- Open-source MCP proxy that applies LLM-based summarization to tool call responses, reducing context window consumption by up to 97% in agentic workflows.
+- **Technologies:** Python, MCP SDK, OpenAI-compatible APIs, Docker
 
-- **Overview:**
+### Foundary — Neural Transaction Classifier
+- Production text classification microservice with a custom PyTorch Transformer encoder for financial transactions. Supports online learning, batch inference, and multi-backend (CUDA/MPS/CPU) serving.
+- **Technologies:** PyTorch, FastAPI, Docker
 
-  - Held dual roles encompassing enterprise architecture and senior development responsibilities.
-  - Led multiple projects focusing on system architecture, microservices, and integration with third-party vendors.
-  - Collaborated with cross-functional teams to identify technological needs and implement solutions that drive business growth.
+### Ember Pulse — iOS Health Data Platform
+- Built the full stack: Swift iOS app collecting HealthKit telemetry with background sync (HKAnchoredObjectQuery, HKObserverQuery), and a FastAPI Python backend with WebAuthn passkey authentication and JWT rotation.
+- **Technologies:** Swift, iOS 26 SDK, HealthKit, SwiftUI | Python, FastAPI, SQLAlchemy, WebAuthn/FIDO2, Docker
 
-- **Key Responsibilities:**
+### Karpathy LLM Training Contributions
+- **llama2.c** (14 commits): Added FineWeb/Dolphin dataset training, GPU data loading and buffering optimizations, hyperparameter tuning for 4090, WandB logging integration.
+- **nanoGPT**: Added torch.compile, pin_memory, and async data loading optimizations.
+- **llm.c**: Containerized C/CUDA training with Docker.
+- **build-nanogpt**: Fixed PyTorch autocast device type for non-CUDA backends.
 
-  - **Enterprise Architecture:**
+### RL Trading Experiments (Early Research)
+- Built PPO reinforcement learning environments for automated stock trading using custom PyTorch models and TorchRL. Progressed from CartPole to custom stock trading environments with MLP and Transformer architectures.
+- **Technologies:** PyTorch, TorchRL, PPO, custom RL environments
 
-    - Identified and implemented new platforms, technologies, and third-party software to meet evolving business needs.
-    - Introduced Docker container architecture, enabling independent scaling and fault tolerance.
-    - Deployed Docker Swarm across data centers with plans to expand to AWS.
-    - Implemented WSO2 API Manager for secure and scalable API management.
+## Professional Experience
 
-  - **Senior Development:**
+### GuidedChoice — Reno, NV
 
-    - Developed and maintained microservices architectures, improving scalability and fault tolerance.
-    - Led the integration of various client systems, enhancing data synchronization and system interoperability.
-    - Directed offshore development teams, ensuring adherence to best practices and timely project delivery.
-    - Optimized data migration processes from legacy systems to modern databases, enhancing data accessibility and reliability.
+**Chief Technology Officer** | May 2022 – Present
 
-- **Key Projects:**
+- Lead architecture, engineering, security, and infrastructure teams. Maintain 99.9%+ uptime across all services.
+- Migrated from Docker Swarm to Kubernetes, enhancing scalability and resilience.
+- **Technologies:** Java, Spring Cloud, Docker, Kubernetes, Azure, Kafka, SQL Server, Elasticsearch, React
 
-  - **Rest API for Legacy CRM**
+**Product Manager, Architect, Lead Developer** | Sep 2017 – May 2022
 
-    - Developed RESTful APIs to overcome CRM limitations, enabling real-time services.
-    - Created a metadata layer for dynamic endpoint creation and data validation.
-    - **Technologies Used:** Java, Spring Boot, RESTful Services, JSON, SQL Server
+- Architected and built a scalable microservices platform. Migrated legacy systems to modern architectures.
+- Managed Oracle to MS SQL data migration. Mentored team on Spring Cloud and microservices patterns.
+- **Technologies:** Java, Azure, Spring Cloud, Docker, SQL Server, React.js
 
-  - **Vendor Communication Manager**
+### ARS National Service — Escondido, CA
 
-    - Built a system to manage integrations with multiple vendors, reducing manual interventions.
-    - Developed algorithms for data distribution based on vendor share and quality.
-    - **Technologies Used:** Java, Spring Boot, Spring Batch, LDAP, Bouncy Castle, SQL Server, Gradle
+**Enterprise Architect & Senior Developer** | Aug 2013 – Sep 2017
 
-  - **Dynamic Letter Application**
+- Introduced Docker container architecture and Docker Swarm across data centers. Implemented WSO2 API Manager.
+- Built REST APIs for legacy CRM, vendor integration systems, ETL tools, and document management systems.
+- **Technologies:** Java, Spring Boot, C#, Docker, SQL Server, MongoDB
 
-    - Developed a dynamic document management system with reusable components and approval workflows.
-    - **Technologies Used:** C#, Backbone.js, MongoDB, SQL Server
+### CSUSM — San Marcos, CA
 
-  - **Custom ETL Tool**
+**iOS Developer** | Sep 2012 – Mar 2013
+- Built augmented reality iOS app overlaying 3D objects in real-time camera views. (Objective-C, iOS)
 
-    - Created an ETL tool for data migration from legacy systems to SQL Server and other endpoints.
-    - Enabled user-defined queries and multi-threaded data processing.
-    - **Technologies Used:** C#, TCP/IP, SSIS, SQL Server, Task Factory
+**National Science Foundation** | Sep 2011 – Jun 2012
+- Enhanced web application with Google Earth SDK for interactive geography learning. (PHP, MongoDB)
 
-## CSUSM, CA, USA
+## Education
 
-### iOS Developer
+**Master of Science in Computer Science**
+California State University, San Marcos — 2013
 
-*Sep 2012 – Mar 2013*
-
-- **Augmented Reality App**
-  - Developed an iOS app utilizing sensors to augment 3D objects in real-time camera views.
-  - **Technologies Used:** iOS, MongoDB, Objective-C, PHP
-
-### PHP Developer
-
-*Sep 2011 – Jun 2012*
-
-- Enhanced a web application with Google Earth SDK and API for interactive geography learning.
-- **Technologies Used:** Google Earth SDK, PHP, MongoDB
-
-## CMP, CA, USA
-
-### C# Software Engineer
-
-*Sep 2011 – Dec 2012*
-
-- **Photo Automation Tool**
-  - Developed an application to import, resize, rotate, and match photos with event data automatically.
-  - **Technologies Used:** C#, Web Crawling, Desktop Application
-
-# Education
-
-### Master of Science in Computer Science
-
-California State University, San Marcos – 2013
-
-### Bachelor of Technology in Information Technology
-
-Easwari Engineering College, Anna University, Chennai, India – 2010
-
-# Technical Skills
-
-- **Operating Systems:** Windows, Linux, AIX, macOS, Android, iOS, Alpine
-- **Development Tools:** IntelliJ, Eclipse, Visual Studio, Android Studio, XCode
-
-# Professional Attributes
-
-- **Exceptional Problem Solver:** Adept at diagnosing complex technical issues and implementing effective solutions, ensuring seamless system operations and minimizing downtime.
-- **Strategic Leadership:** Proven ability to lead and mentor cross-functional teams, fostering collaboration and driving projects to successful completion.
-- **Continuous Learner:** Committed to staying abreast of emerging technologies and industry trends, recently expanding expertise into Machine Learning through personal projects.
-- **Effective Communicator:** Strong interpersonal skills, capable of articulating technical concepts to non-technical stakeholders and fostering a collaborative work environment.
-- **Innovative Thinker:** Recognized for introducing cutting-edge technologies and optimizing system performance to support business growth and operational excellence.
-- **Adaptable and Resilient:** Thrives in dynamic environments, adept at managing multiple projects simultaneously and adapting to evolving business needs.
-
+**Bachelor of Technology in Information Technology**
+Easwari Engineering College, Anna University, Chennai, India — 2010
