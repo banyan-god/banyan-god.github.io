@@ -12,7 +12,7 @@ params:
     - name: "x"
       url: "https://x.com/sabareeshkkanan"
     - name: "email"
-      url: "mailto:me@sabareesh.com"
+      url: "mailto:hello@sabareesh.com"
     - name: "github"
       url: "https://github.com/banyan-god"
   homeInfoParams:
