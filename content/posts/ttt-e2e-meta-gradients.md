@@ -6,7 +6,7 @@ math: true
 draft: false
 ---
 
-Pretraining taught us that neural networks can compress massive amounts of data into weights. But once we deploy an LLM, we usually stop that process completely. The model becomes frozen — it reads new inputs but never learns from them.
+Pretraining taught us that neural networks can compress massive amounts of data into weights. But once we deploy an LLM, we usually stop updating those weights completely. The model becomes frozen — it reads new inputs but never learns from them.
 
 Test-time training asks a more ambitious question: **what if the model kept learning while it was being used?**
 
@@ -20,7 +20,7 @@ Code: [github.com/banyan-god/ttt-e2e-qwen3](https://github.com/banyan-god/ttt-e2
 
 Consider your experience reading this post. You don't process each sentence in isolation — you build up context, adjust your understanding, and use earlier information to interpret what comes later. Your "weights" are changing as you read.
 
-Current LLMs don't do this. They have a fixed set of weights and a growing KV cache. The cache stores verbatim key-value pairs from past tokens, but the model's understanding — its weights — never changes during inference. This means:
+Current LLMs don't do this. They have a fixed set of weights and a growing KV cache. The cache stores verbatim key-value pairs from past tokens, but the model's parameters never change during inference. This means:
 
 - The model can't compress earlier context into updated parameters or latent long-range state
 - The KV cache grows linearly with context, making long sequences expensive
@@ -47,7 +47,7 @@ The concept has a long history: dynamic evaluation in NLP, test-time augmentatio
 
 [TTT-E2E](https://arxiv.org/abs/2512.23675) (Tandon, Dalal, Li, Koceja, Rød, Buchanan, Wang, Leskovec, Koyejo, Hashimoto, Guestrin, McCaleb, Choi, Sun) is an architecture designed to make test-time training practical for language models. It has three components:
 
-**Sliding Window Attention (8K tokens)** handles local context. The model can directly attend to recent tokens within the window, just like a standard transformer with a fixed-size attention span.
+**Sliding Window Attention (8K tokens)** handles local context. The model can directly attend to recent tokens within the window, like a transformer with local attention.
 
 **Prime MLPs** are additional SwiGLU layers added to the last quarter of transformer blocks. Their weights are updated during test-time training via SGD on next-token prediction loss. The original MLPs stay frozen, preserving pretrained knowledge. Think of it as: the original MLP stores what the model learned during pretraining, the prime MLP stores what it's learning right now from this specific input.
 
@@ -67,7 +67,7 @@ After processing all chunks:
   → Decode new tokens using the adapted model
 ```
 
-The model is not just reading the context — it is compressing parts of that context into weights as it goes.
+The model is not just reading the context — it is updating weights as it goes.
 
 ## Why Long-Context Improves
 
