@@ -12,7 +12,7 @@ Test-time training asks a more ambitious question: **what if the model kept lear
 
 [TTT-E2E](https://arxiv.org/abs/2512.23675) is one practical answer. It lets a language model adapt its weights online from the very sequence it is reading. One consequence is dramatically stronger long-context behavior — but the deeper insight is that inference and learning don't have to be separate phases.
 
-We ported TTT-E2E from JAX to PyTorch, applied it to QWen3-4B, and trained at 128K context on a single GPU. This post documents what we learned.
+We ported TTT-E2E from JAX to PyTorch, applied it to Qwen3-4B, and trained at 128K context on a single GPU. This post documents what we learned.
 
 Code: [github.com/banyan-god/ttt-e2e-qwen3](https://github.com/banyan-god/ttt-e2e-qwen3) | Paper: [arXiv:2512.23675](https://arxiv.org/abs/2512.23675) | Official JAX: [github.com/test-time-training/e2e](https://github.com/test-time-training/e2e)
 
@@ -39,6 +39,8 @@ Test-time training (TTT) makes inference include learning. The model updates its
 
 This is online learning in the classical sense — the model adapts to the data distribution it encounters at test time. The key difference from offline fine-tuning is that it happens in real-time, on a per-input basis, and the updates are designed to be temporary (the model resets for the next input).
 
+An important distinction: TTT-E2E as described in the paper is **within-sequence adaptation**, not persistent lifelong learning across sessions. The prime MLP weights reset to W₀ for each new input. The broader vision of models that accumulate knowledge across deployments is a natural extension, but TTT-E2E itself is a step in that direction, not the full destination.
+
 The concept has a long history: dynamic evaluation in NLP, test-time augmentation in vision, and meta-learning frameworks like MAML. TTT-E2E brings it to scale with modern transformers.
 
 ## TTT-E2E: One Concrete Implementation
@@ -54,7 +56,7 @@ The concept has a long history: dynamic evaluation in NLP, test-time augmentatio
 The model's forward pass on a long sequence looks like this:
 
 ```
-For each chunk of 2048 tokens in the 128K context:
+For each chunk of tokens in the context (paper uses 1K, we use 2K):
   1. Run attention + prime MLP + original MLP
   2. Compute next-token prediction loss
   3. SGD step on prime MLP weights only
@@ -75,11 +77,13 @@ Standard transformers with full attention can represent long-range dependencies,
 
 TTT-E2E gives the model a second mechanism for carrying forward information besides the attention KV cache: **adapted weights**. The prime MLPs accumulate knowledge from all past chunks, not just the ones within the attention window. Information from token 1 can influence prediction at token 128K through the weight updates, even though it's long outside the attention window.
 
-The paper shows that TTT-E2E scales with context length the same way as full attention — loss improves as context grows — while having constant decode latency like an RNN.
+### What the paper reports
+
+On custom 3B models trained with 164B tokens, TTT-E2E scales with context length similarly to full attention — loss improves as context grows — while achieving 2.7x lower inference latency at 128K context on H100 GPUs. The key result: other methods (Mamba 2, Gated DeltaNet, sliding window alone) degrade at long context, while TTT-E2E does not.
 
 ## What We Implemented
 
-We ported the full TTT-E2E architecture to PyTorch on QWen3-4B (4.0B base params + 672M added prime MLP params):
+We ported the TTT-E2E architecture to PyTorch with both exact and first-order meta-gradient paths, and applied it to Qwen3-4B (4.0B base params + 672M added prime MLP params). Our main long-context training uses the first-order (FOMAML) path, which is an approximation of the paper's exact meta-learning — see the engineering tradeoff section below.
 
 - **Prefix/suffix split**: the first 27 layers run once on the full sequence; the last 9 layers (with prime MLPs) run per-chunk with inner-loop updates
 - **Sliding window attention with relative RoPE**: positions re-anchored to [0, window+chunk) every chunk, matching the [official JAX implementation](https://github.com/test-time-training/e2e). This keeps RoPE positions bounded regardless of sequence length.
@@ -92,9 +96,9 @@ We ported the full TTT-E2E architecture to PyTorch on QWen3-4B (4.0B base params
 
 The paper's meta-learning requires differentiating through the TTT update rule (gradients of gradients). In JAX this is natural. In PyTorch, we found a fundamental constraint:
 
-**Flash Attention and second-order gradients are mutually exclusive.**
+**In our PyTorch stack, exact second-order meta-gradients were incompatible with the efficient FlashAttention path.**
 
-PyTorch's Flash Attention kernel doesn't have a Hessian-vector product implementation. When you need `create_graph=True` for the inner-loop gradients (to get the exact meta-gradient), you must fall back to the "math" SDPA backend, which materializes the full attention matrix. This erases Flash Attention's memory savings — the exact savings you need for long context.
+PyTorch's Flash Attention and memory-efficient attention kernels don't currently have Hessian-vector product implementations. When you need `create_graph=True` for the inner-loop gradients (to get the exact meta-gradient), you must fall back to the "math" SDPA backend, which materializes the full attention matrix. This erases Flash Attention's memory savings — the exact savings you need for long context.
 
 The practical consequence:
 
@@ -103,7 +107,11 @@ The practical consequence:
 | Exact second-order | ~1.5K tokens | — |
 | FOMAML (first-order) | **128K tokens** | 1,370 tok/s |
 
-We implemented both modes with a single `meta_grad_mode` switch. For long-context training, FOMAML is the only viable path on current hardware. The exact mode is useful for short-context pre-training or verification.
+We implemented both modes with a single `meta_grad_mode` switch. For long-context training on our hardware, FOMAML is the practical path. The exact mode is useful for short-context work or verification.
+
+### What exact meta-learning buys you over FOMAML
+
+FOMAML optimizes post-update loss, but treats the inner SGD trajectory as fixed — it doesn't know how changing W₀ would change the *direction* of the inner updates. Exact meta-gradients optimize W₀ for the actual inner learning trajectory: not just good weights, but weights that are *good to adapt from*. The difference is between "find a good starting point" and "find a starting point where SGD naturally moves in the right direction."
 
 The gradient difference between the modes is real and measurable. On a toy quadratic example, exact produces gradient -2.56 where FOMAML gives -3.20 (the Hessian factor dampens the update). On the full 4.7B model, the element-wise gradient difference is ~0.01, which compounds over training.
 
@@ -125,7 +133,7 @@ Training at 128K context on PG19 (Project Gutenberg books), single RTX PRO 6000 
 | 16K | 10.1 | 9.6 | 4.6% |
 | 32K | 15.2 | 14.2 | 6.1% |
 
-The improvement grows with context length. This is consistent with the paper's central claim and with the online-learning interpretation: the more context the model can learn from, the more benefit it gets from adaptation.
+The improvement grows with context length. This is directionally consistent with the paper's findings and with the online-learning interpretation: the more context the model can learn from, the more benefit it gets from adaptation.
 
 These are early training numbers from a single run — we include them as directional evidence, not final results.
 
