@@ -22,7 +22,7 @@ Consider your experience reading this post. You don't process each sentence in i
 
 Current LLMs don't do this. They have a fixed set of weights and a growing KV cache. The cache stores verbatim key-value pairs from past tokens, but the model's understanding — its weights — never changes during inference. This means:
 
-- The model can't compress earlier context into a more useful form
+- The model can't compress earlier context into updated parameters or latent long-range state
 - The KV cache grows linearly with context, making long sequences expensive
 - Each input is processed with the same static model, regardless of what it contains
 
@@ -63,7 +63,7 @@ For each chunk of tokens in the context (paper uses 1K, we use 2K):
   → Prime MLPs now "remember" something about this chunk
 
 After processing all chunks:
-  The prime MLPs contain a compressed representation of the full context
+  The prime MLPs contain a compressed representation of useful aspects of the full context
   → Decode new tokens using the adapted model
 ```
 
@@ -71,11 +71,11 @@ The model is not just reading the context — it is compressing parts of that co
 
 ## Why Long-Context Improves
 
-Long-context performance is a natural consequence of online adaptation, not the primary goal. Here's why:
+Long-context performance is a consequence of online adaptation, not the deepest point of the method. Here's why:
 
 Standard transformers with full attention can represent long-range dependencies, but the cost per token grows linearly with context. Sliding window attention is cheap but can only "see" the last 8K tokens.
 
-TTT-E2E gives the model a second mechanism for carrying forward information besides the attention KV cache: **adapted weights**. The prime MLPs accumulate knowledge from all past chunks, not just the ones within the attention window. Information from token 1 can influence prediction at token 128K through the weight updates, even though it's long outside the attention window.
+TTT-E2E gives the model a second mechanism for carrying forward information besides the attention KV cache: **adapted weights**. The prime MLPs accumulate knowledge from all past chunks, not just the ones within the attention window. Information from token 1 can still influence prediction at token 128K through the adapted prime weights, even after it falls outside the attention window.
 
 ### What the paper reports
 
@@ -88,7 +88,7 @@ We ported the TTT-E2E architecture to PyTorch with both exact and first-order me
 - **Prefix/suffix split**: the first 27 layers run once on the full sequence; the last 9 layers (with prime MLPs) run per-chunk with inner-loop updates
 - **Sliding window attention with relative RoPE**: positions re-anchored to [0, window+chunk) every chunk, matching the [official JAX implementation](https://github.com/test-time-training/e2e). This keeps RoPE positions bounded regardless of sequence length.
 - **SDPA-accelerated attention**: 5.6x faster than manual matmul for suffix attention
-- **Per-chunk backward with O(1) memory**: each chunk's graph is freed immediately after backward, enabling arbitrarily long context on a single GPU
+- **Per-chunk backward with near-O(1) memory in first-order mode**: each chunk's graph is freed immediately after backward, enabling arbitrarily long context on a single GPU
 - **Gradient accumulation**: 4 sequences per optimizer step (524K tokens/step)
 - **Both meta-gradient modes**: exact second-order (paper-faithful) and first-order FOMAML (practical)
 
@@ -148,7 +148,7 @@ Consider:
 
 These are all instances of the same principle: **the model should keep learning from its input, not just process it.**
 
-TTT-E2E demonstrates that this is architecturally feasible at scale. The mechanism — compressing context into fast weights via gradient descent — is one approach. Others may emerge. But the direction seems clear: the boundary between training and inference is dissolving.
+TTT-E2E demonstrates that online adaptation during inference is architecturally feasible at scale. The mechanism — compressing context into fast weights via gradient descent — is one approach. Others may emerge. But the direction seems clear: the boundary between training and inference is dissolving.
 
 ---
 
