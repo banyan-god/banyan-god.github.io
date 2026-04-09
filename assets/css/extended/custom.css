@@ -1,6 +1,6 @@
 /* ── Fonts ── */
 :root {
-    --main-width: 780px;
+    --main-width: 850px;
 }
 
 body {
@@ -87,6 +87,7 @@ code, pre, .post-content code {
 .first-entry {
     border-radius: 12px;
     border: 1px solid var(--border);
+    padding: 24px 32px;
     overflow: hidden;
 }
 
