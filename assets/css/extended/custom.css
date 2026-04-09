@@ -1,8 +1,25 @@
-/* ── Fonts ── */
+/* ── Color scheme: dark navy + warm orange accent ── */
 :root {
     --main-width: 850px;
+    --accent: #58c2da;
+    --accent-hover: #3dadc6;
+    --accent-soft: rgba(88, 194, 218, 0.15);
 }
 
+/* ── Dark theme overrides (deep navy like perevillega) ── */
+.dark {
+    --theme: rgb(22, 24, 38);
+    --entry: rgb(30, 33, 48);
+    --primary: rgb(220, 220, 225);
+    --secondary: rgb(155, 158, 168);
+    --tertiary: rgb(55, 58, 72);
+    --content: rgb(200, 200, 208);
+    --code-block-bg: rgb(16, 18, 30);
+    --code-bg: rgb(38, 40, 55);
+    --border: rgb(50, 53, 68);
+}
+
+/* ── Fonts ── */
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     letter-spacing: -0.01em;
@@ -11,6 +28,19 @@ body {
 
 code, pre, .post-content code {
     font-family: 'JetBrains Mono', monospace;
+}
+
+/* ── Links with orange accent ── */
+.post-content a {
+    color: var(--accent);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.post-content a:hover {
+    color: var(--accent-hover);
+    text-decoration: underline;
+    text-underline-offset: 3px;
 }
 
 /* ── Post entry cards ── */
@@ -26,16 +56,21 @@ code, pre, .post-content code {
 .post-entry:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    border-color: var(--accent);
 }
 
 .dark .post-entry:hover {
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 }
 
 .post-entry .entry-header h2 {
     font-weight: 600;
     letter-spacing: -0.02em;
     transition: color 0.2s ease;
+}
+
+.post-entry:hover .entry-header h2 {
+    color: var(--accent);
 }
 
 /* ── Post title styling ── */
@@ -45,10 +80,37 @@ code, pre, .post-content code {
     line-height: 1.2;
 }
 
+/* ── Tags ── */
+.post-tags a {
+    background: var(--accent-soft);
+    color: var(--accent);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    transition: background 0.2s ease, transform 0.15s ease;
+    text-decoration: none;
+    border: 1px solid transparent;
+}
+
+.post-tags a:hover {
+    background: var(--accent);
+    color: #fff;
+    transform: scale(1.05);
+}
+
 /* ── Reading time & meta ── */
 .post-meta {
     font-size: 0.88rem;
     opacity: 0.7;
+}
+
+/* ── Blockquotes ── */
+.post-content blockquote {
+    border-left: 3px solid var(--accent);
+    padding-left: 16px;
+    font-style: italic;
+    opacity: 0.9;
 }
 
 /* ── Code blocks ── */
@@ -106,6 +168,11 @@ html {
     scroll-behavior: smooth;
 }
 
+/* ── Selection highlight ── */
+::selection {
+    background: var(--accent-soft);
+}
+
 /* ── Social icons hover ── */
 .social-icons a {
     transition: transform 0.2s ease, opacity 0.2s ease;
@@ -113,7 +180,16 @@ html {
 
 .social-icons a:hover {
     transform: translateY(-2px);
-    opacity: 0.8;
+    color: var(--accent);
+}
+
+/* ── Menu links ── */
+#menu a {
+    transition: color 0.2s ease;
+}
+
+#menu a:hover {
+    color: var(--accent) !important;
 }
 
 /* ── Theme toggle ── */
@@ -143,30 +219,30 @@ html {
 }
 
 .dark .bg-glow__orb {
-    opacity: 0.08;
+    opacity: 0.06;
 }
 
-/* Indigo orb — top left, slow drift */
+/* Warm orb — top left */
 .bg-glow__orb--1 {
     width: 500px;
     height: 500px;
-    background: radial-gradient(circle, #6366f1, transparent 70%);
+    background: radial-gradient(circle, #58c2da, transparent 70%);
     top: -10%;
     left: -5%;
     animation: drift1 20s ease-in-out infinite alternate;
 }
 
-/* Pink orb — bottom right, medium drift */
+/* Purple orb — bottom right */
 .bg-glow__orb--2 {
     width: 400px;
     height: 400px;
-    background: radial-gradient(circle, #ec4899, transparent 70%);
+    background: radial-gradient(circle, #6366f1, transparent 70%);
     bottom: -5%;
     right: -5%;
     animation: drift2 25s ease-in-out infinite alternate;
 }
 
-/* Cyan orb — center, gentle pulse */
+/* Teal orb — center */
 .bg-glow__orb--3 {
     width: 350px;
     height: 350px;

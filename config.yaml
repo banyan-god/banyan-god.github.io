@@ -5,7 +5,7 @@ publishDir: "public"
 title: Life and AI
 params:
   env: production
-  defaultTheme: auto
+  defaultTheme: dark
   ShowReadingTime: true
   ShowShareButtons: true
   ShowPostNavLinks: true
