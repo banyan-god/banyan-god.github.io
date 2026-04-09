@@ -4,13 +4,8 @@ baseURL: "/"
 publishDir: "public"
 title: Life and AI
 params:
-  env: production
-  defaultTheme: auto
+  env: production 
   ShowReadingTime: true
-  ShowShareButtons: true
-  ShowPostNavLinks: true
-  ShowBreadCrumbs: true
-  ShowCodeCopyButtons: true
   socialIcons:
     - name: "linkedin"
       url: "https://www.linkedin.com/in/sabaree"
