@@ -1,5 +1,127 @@
+/* ── Fonts ── */
 :root {
     --main-width: 780px;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    letter-spacing: -0.01em;
+    line-height: 1.75;
+}
+
+code, pre, .post-content code {
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* ── Post entry cards ── */
+.post-entry {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    background: var(--entry);
+}
+
+.post-entry:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.dark .post-entry:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.post-entry .entry-header h2 {
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    transition: color 0.2s ease;
+}
+
+/* ── Post title styling ── */
+.post-title {
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+}
+
+/* ── Reading time & meta ── */
+.post-meta {
+    font-size: 0.88rem;
+    opacity: 0.7;
+}
+
+/* ── Code blocks ── */
+.post-content pre {
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    padding: 16px;
+}
+
+.post-content pre code {
+    font-size: 0.88rem;
+    line-height: 1.6;
+}
+
+/* ── Inline code ── */
+.post-content code:not(pre code) {
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.88em;
+    background: var(--code-bg);
+}
+
+/* ── Headings in posts ── */
+.post-content h2 {
+    margin-top: 2em;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.post-content h3 {
+    margin-top: 1.5em;
+    font-weight: 600;
+}
+
+/* ── Homepage info ── */
+.first-entry {
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+}
+
+/* ── Footer ── */
+.footer {
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+}
+
+.footer:hover {
+    opacity: 1;
+}
+
+/* ── Smooth scrolling ── */
+html {
+    scroll-behavior: smooth;
+}
+
+/* ── Social icons hover ── */
+.social-icons a {
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.social-icons a:hover {
+    transform: translateY(-2px);
+    opacity: 0.8;
+}
+
+/* ── Theme toggle ── */
+#theme-toggle {
+    transition: transform 0.2s ease;
+}
+
+#theme-toggle:hover {
+    transform: rotate(20deg);
 }
 
 /* ── Floating gradient background ── */
