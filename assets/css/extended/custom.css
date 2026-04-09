@@ -1,3 +1,79 @@
 :root {
     --main-width: 780px;
 }
+
+/* ── Floating gradient background ── */
+.bg-glow {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.bg-glow__orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px);
+    opacity: 0.12;
+    will-change: transform;
+}
+
+.dark .bg-glow__orb {
+    opacity: 0.08;
+}
+
+/* Indigo orb — top left, slow drift */
+.bg-glow__orb--1 {
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, #6366f1, transparent 70%);
+    top: -10%;
+    left: -5%;
+    animation: drift1 20s ease-in-out infinite alternate;
+}
+
+/* Pink orb — bottom right, medium drift */
+.bg-glow__orb--2 {
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, #ec4899, transparent 70%);
+    bottom: -5%;
+    right: -5%;
+    animation: drift2 25s ease-in-out infinite alternate;
+}
+
+/* Cyan orb — center, gentle pulse */
+.bg-glow__orb--3 {
+    width: 350px;
+    height: 350px;
+    background: radial-gradient(circle, #06b6d4, transparent 70%);
+    top: 40%;
+    left: 50%;
+    animation: drift3 30s ease-in-out infinite alternate;
+}
+
+@keyframes drift1 {
+    0%   { transform: translate(0, 0) scale(1); }
+    50%  { transform: translate(80px, 60px) scale(1.1); }
+    100% { transform: translate(-40px, 120px) scale(0.95); }
+}
+
+@keyframes drift2 {
+    0%   { transform: translate(0, 0) scale(1); }
+    50%  { transform: translate(-70px, -50px) scale(1.15); }
+    100% { transform: translate(50px, -100px) scale(0.9); }
+}
+
+@keyframes drift3 {
+    0%   { transform: translate(-50%, 0) scale(1); }
+    50%  { transform: translate(-30%, -40px) scale(1.1); }
+    100% { transform: translate(-60%, 50px) scale(0.95); }
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .bg-glow__orb {
+        animation: none;
+    }
+}
