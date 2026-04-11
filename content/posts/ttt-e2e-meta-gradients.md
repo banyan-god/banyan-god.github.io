@@ -4,6 +4,12 @@ date: 2026-04-06
 tags: ["deep-learning", "meta-learning", "long-context", "pytorch", "ttt", "online-learning"]
 math: true
 draft: false
+cover:
+  image: "/blog-images/ttt-e2e-cover.gif"
+  alt: "TTT-E2E: Models that learn during inference"
+  relative: false
+images:
+  - "/blog-images/ttt-e2e-cover.gif"
 ---
 
 Pretraining taught us that neural networks can compress massive amounts of data into weights. But once we deploy an LLM, we usually stop updating those weights completely. The model becomes frozen — it reads new inputs but never learns from them.
