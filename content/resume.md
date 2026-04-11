@@ -4,11 +4,11 @@
 
 ## Summary
 
-Machine learning engineer building end-to-end AI trading systems — from pre-training LLMs from scratch to fine-tuning Qwen3-4B on proprietary financial datasets and training trading decision models with GRPO reinforcement learning. Operates custom GPU infrastructure (4x RTX 4090 + 2x RTX PRO 6000 Blackwell) for continuous experimentation. Developed a multi-stage waterfall pipeline (equity knowledge injection → instruct alignment → stock prediction → trade execution) achieving 100% format validity and +9.4% portfolio return. Designed microagent architectures for autonomous equity research and a multi-agent personal AI runtime. 14 years of production software engineering experience as CTO, with deep expertise in scalable systems, Kubernetes, and cloud infrastructure.
+Machine learning engineer building end-to-end AI trading systems — from pre-training LLMs from scratch to fine-tuning Qwen3-4B on proprietary financial datasets and training trading decision models with GRPO reinforcement learning. Ported test-time training (TTT-E2E) to PyTorch for Qwen3-4B, implementing meta-learned weight adaptation during inference with 4.6–6.1% perplexity improvements on 128K context. Operates custom GPU infrastructure (4x RTX 4090 + 2x RTX PRO 6000 Blackwell) for continuous experimentation. Developed a multi-stage waterfall pipeline (equity knowledge injection → instruct alignment → stock prediction → trade execution) achieving 100% format validity and +9.4% portfolio return. Designed microagent architectures for autonomous equity research and a multi-agent personal AI runtime. 14 years of production software engineering experience as CTO, with deep expertise in scalable systems, Kubernetes, and cloud infrastructure.
 
 ## Technical Skills
 
-- **LLM Training:** PyTorch, torchtune, torchao (float8/4-bit quantized training), TRL, NeMo-RL (GRPO/DAPO), DDP, FSDP/FSDP2, torchrun, vLLM, llama.cpp, Cut Cross-Entropy
+- **LLM Training:** PyTorch, torchtune, torchao (float8/4-bit quantized training), TRL, NeMo-RL (GRPO/DAPO), DDP, FSDP/FSDP2, torchrun, vLLM, llama.cpp, Cut Cross-Entropy, test-time training (TTT-E2E), meta-gradients (FOMAML/exact second-order)
 - **Model Architectures:** Qwen3-4B, Llama 2/3, DeepSeek R1, GPT-2/NanoGPT, custom Transformer encoders
 - **RL for LLMs:** GRPO, DAPO, PPO, TorchRL, volatility-normalized reward functions, counterfactual opportunity regret, hold-penalty scheduling, reward shaping for trading
 - **Agent Systems:** OpenAI Agents SDK, MCP (Model Context Protocol), multi-agent orchestration, context compaction, semantic memory, WandB Weave observability
@@ -40,6 +40,15 @@ Multi-stage waterfall fine-tuning and reinforcement learning pipeline for traini
 
 - **Technologies:** torchtune, TRL, NeMo-RL (Ray + vLLM), Cut Cross-Entropy, vLLM, llama.cpp, PyTorch distributed, SQL Server
 - **Hardware:** 2x NVIDIA RTX PRO 6000 Blackwell (96GB each), 4x RTX 4090
+
+### TTT-E2E — Test-Time Training for Qwen3-4B
+- Ported TTT-E2E (test-time training with end-to-end meta-gradients) from JAX to PyTorch, applying it to Qwen3-4B (4.0B base + 672M prime MLP parameters).
+- Implemented both exact second-order meta-gradients and FOMAML first-order approximation. Discovered that exact mode is incompatible with FlashAttention in PyTorch (no Hessian-vector product support), limiting context to ~1.5K tokens vs. 128K with FOMAML.
+- Architecture: sliding window attention (8K), prime SwiGLU MLPs in last 9 transformer blocks updated via SGD at inference time, with meta-learned initialization W₀ optimized so post-TTT weights minimize next-token loss.
+- Achieved 4.6–6.1% perplexity improvement on PG19 (4K–32K context) at step 60, with training loss dropping from 2.97 → 2.49 over 20 steps on 128K context.
+- Engineered per-chunk backward pass with near-O(1) memory, 4-sequence gradient accumulation (524K tokens/step), SDPA-accelerated attention (5.6x faster than manual matmul).
+- **Technologies:** PyTorch, SDPA, FOMAML, meta-gradients, SwiGLU, RoPE
+- **Hardware:** NVIDIA RTX PRO 6000 Blackwell (96GB)
 
 ### Autonomous Equity Research Agent
 - Designed and built an autonomous equity research and watchlist curation system using the OpenAI Agents SDK with MCP browser automation.
