@@ -4,11 +4,12 @@
 
 ## Summary
 
-Machine learning engineer building end-to-end AI trading systems — from pre-training LLMs from scratch to fine-tuning Qwen3-4B on proprietary financial datasets and training trading decision models with GRPO reinforcement learning. Ported test-time training (TTT-E2E) to PyTorch for Qwen3-4B, implementing meta-learned weight adaptation during inference with 4.6–6.1% perplexity improvements on 128K context. Operates custom GPU infrastructure (4x RTX 4090 + 2x RTX PRO 6000 Blackwell) for continuous experimentation. Developed a multi-stage waterfall pipeline (equity knowledge injection → instruct alignment → stock prediction → trade execution) achieving 100% format validity and +9.4% portfolio return. Designed microagent architectures for autonomous equity research and a multi-agent personal AI runtime. 14 years of production software engineering experience as CTO, with deep expertise in scalable systems, Kubernetes, and cloud infrastructure.
+ML researcher and CTO exploring how language models can learn, adapt, and make decisions in real-time. Current research spans three areas: training LLMs that keep learning during inference (TTT-E2E with second-order meta-gradients, 4.6–6.1% perplexity gains on Qwen3-4B), teaching LLMs to trade autonomously via reinforcement learning (GRPO on proprietary financial data, +9.4% portfolio return), and building multi-agent systems that reason and act in the real world. Pre-trained LLMs from scratch, contributed to Karpathy's open-source training codebases, and run continuous experiments on personal GPU infrastructure. 14 years shipping production systems as CTO — now applying that engineering depth to AI research.
 
 ## Technical Skills
 
-- **LLM Training:** PyTorch, torchtune, torchao (float8/4-bit quantized training), TRL, NeMo-RL (GRPO/DAPO), DDP, FSDP/FSDP2, torchrun, vLLM, llama.cpp, Cut Cross-Entropy, test-time training (TTT-E2E), meta-gradients (FOMAML/exact second-order)
+- **Research Areas:** Test-time training (TTT-E2E), meta-learning (FOMAML, second-order meta-gradients), reinforcement learning for LLMs (GRPO, DAPO, PPO), reward shaping for financial markets, multi-agent architectures, continual learning during inference
+- **LLM Training:** PyTorch, torchtune, torchao (float8/4-bit quantized training), TRL, NeMo-RL (GRPO/DAPO), DDP, FSDP/FSDP2, torchrun, vLLM, llama.cpp, Cut Cross-Entropy
 - **Model Architectures:** Qwen3-4B, Llama 2/3, DeepSeek R1, GPT-2/NanoGPT, custom Transformer encoders
 - **RL for LLMs:** GRPO, DAPO, PPO, TorchRL, volatility-normalized reward functions, counterfactual opportunity regret, hold-penalty scheduling, reward shaping for trading
 - **Agent Systems:** OpenAI Agents SDK, MCP (Model Context Protocol), multi-agent orchestration, context compaction, semantic memory, WandB Weave observability
@@ -20,56 +21,55 @@ Machine learning engineer building end-to-end AI trading systems — from pre-tr
 
 ### Qwen3-4B Financial Trading Model — SFT + RL Pipeline
 
-Multi-stage waterfall fine-tuning and reinforcement learning pipeline for training an autonomous equity trading decision model on Qwen3-4B.
+Can an LLM learn to make autonomous trading decisions — not by imitating an oracle, but by discovering its own strategy through reinforcement learning?
 
 **Supervised Fine-Tuning (5-stage waterfall):**
-- Built dataset pipelines exporting equity reports (5,176 reports), stock prediction data (103K records across 94 symbols), and trading decisions from SQL Server into structured JSONL.
-- Trained through 5 stages: equity knowledge injection, Alpaca instruct alignment, stock prediction (achieved ~5-6% MAPE), stateful trading decisions, and distributed training.
-- Developed weighted CCE loss (using Apple's Cut Cross-Entropy — 4.7x faster, 3.2x less memory) with conditional per-field, per-sample weights. Enter-critical fields (decision, side, stop_loss) weighted 4-8x; hold-null fields suppressed.
-- Diagnosed and solved hold-collapse failure mode where model learned trivial all-hold policy due to class imbalance. Identified epoch12 checkpoint as optimal recovery base over epoch15/18.
-
-**Key result — best checkpoint (v2 weighted CCE):** 100% format validity, 13.3% enter rate, 136 trades, $109,428 final equity (+9.4% return) on 1024-record portfolio evaluation.
+- Designed a multi-stage knowledge injection pipeline: equity domain knowledge → instruct alignment → stock prediction → stateful trading decisions. Each stage builds on the previous, progressively teaching the model to reason about markets.
+- Discovered and solved the hold-collapse problem — the model converged to a trivial all-hold policy due to class imbalance. Developed weighted CCE loss with conditional per-field weights (enter-critical fields weighted 4-8x) to recover meaningful trading behavior.
+- **Key result:** 100% format validity, 136 trades, +9.4% portfolio return on 1024-record evaluation.
 
 **Reinforcement Learning (current phase):**
-- Pivoting from SFT to GRPO after SFT hit its ceiling — model imitates oracle at 80% match rate but captures <10% of oracle alpha (oracle uses future information).
-- Designed volatility-normalized, bounded reward function [-2, +2]: `0.8 * pnl_score - 0.2 * dd_penalty` using `tanh(return / sigma_h)` for enters; counterfactual opportunity regret for holds (penalizes missing >1.25 sigma moves).
-- Research survey covering Trading-R1 (Sharpe 2.72 on NVDA), FLAG-Trader (LLM as RL policy with LoRA + PPO), Alpha-R1, HCAPO (hindsight critic), and DAPO at FinRL Contest 2025 (230% cumulative return).
-- Designed "Living Trader" architecture with 4 loops: real-time inference, daily experience collection, weekly RL training, continuous self-research.
-
-**Scientific methodology:** Maintained experiment journal with 13+ dated entries, formal scientific reports, per-experiment leaderboards with 12 ranked runs, defined alpha thesis with explicit falsification criteria, and automated phase gates for SFT → RL → regime adaptation → paper deployment.
-
+- SFT hit its ceiling — the model imitates the oracle at 80% match rate but captures <10% of oracle alpha (the oracle cheats with future information). The question: can GRPO discover trading strategies that SFT cannot?
+- Designed volatility-normalized reward functions with counterfactual opportunity regret — the model is penalized not just for bad trades, but for missing moves it should have taken.
+- Studying Trading-R1, FLAG-Trader, HCAPO, and DAPO to understand how others are applying RL to financial LLMs.
+- Designing a "Living Trader" architecture: real-time inference, daily experience collection, weekly RL training, continuous self-research.
 - **Technologies:** torchtune, TRL, NeMo-RL (Ray + vLLM), Cut Cross-Entropy, vLLM, llama.cpp, PyTorch distributed, SQL Server
-- **Hardware:** 2x NVIDIA RTX PRO 6000 Blackwell (96GB each), 4x RTX 4090
 
 ### TTT-E2E — Test-Time Training for Qwen3-4B
-- Ported TTT-E2E (test-time training with end-to-end meta-gradients) from JAX to PyTorch, applying it to Qwen3-4B (4.0B base + 672M prime MLP parameters).
-- Implemented both exact second-order meta-gradients and FOMAML first-order approximation. Discovered that exact mode is incompatible with FlashAttention in PyTorch (no Hessian-vector product support), limiting context to ~1.5K tokens vs. 128K with FOMAML.
-- Architecture: sliding window attention (8K), prime SwiGLU MLPs in last 9 transformer blocks updated via SGD at inference time, with meta-learned initialization W₀ optimized so post-TTT weights minimize next-token loss.
-- Achieved 4.6–6.1% perplexity improvement on PG19 (4K–32K context) at step 60, with training loss dropping from 2.97 → 2.49 over 20 steps on 128K context.
-- Engineered per-chunk backward pass with near-O(1) memory, 4-sequence gradient accumulation (524K tokens/step), SDPA-accelerated attention (5.6x faster than manual matmul).
+
+What if a model kept learning while it was being used — updating its weights from the very sequence it's reading?
+
+- Implemented TTT-E2E for Qwen3-4B: second-order meta-gradients that optimize an initial weight state W₀ so that SGD steps on the input sequence actually improve next-token prediction in real-time.
+- Explored the boundary between exact and approximate meta-learning. Exact second-order meta-gradients require Hessian-vector products that are incompatible with FlashAttention in PyTorch — a fundamental tension between computational efficiency and learning fidelity. FOMAML scales to 128K context; exact caps at ~1.5K.
+- 4.6–6.1% perplexity improvement on PG19 (4K–32K context). The deeper insight: the boundary between training and inference is dissolving.
 - **Technologies:** PyTorch, SDPA, FOMAML, meta-gradients, SwiGLU, RoPE
-- **Hardware:** NVIDIA RTX PRO 6000 Blackwell (96GB)
 
 ### Autonomous Equity Research Agent
-- Designed and built an autonomous equity research and watchlist curation system using the OpenAI Agents SDK with MCP browser automation.
-- Implemented a microagent architecture (Topic Scanner → Symbol Assessor → Job Orchestrator) to solve context overflow problems in monolithic agent designs.
+
+How do you build an AI system that continuously monitors markets, evaluates opportunities, and curates a watchlist — without collapsing under its own context?
+
+- Solved the context overflow problem in monolithic agent designs by decomposing into a microagent architecture: Topic Scanner → Symbol Assessor → Job Orchestrator. Each agent operates within its context budget, passing structured signals downstream.
 - Integrated confidence-scored watchlist management, social sentiment analysis, and market cap filtering with full observability via WandB Weave.
 - **Technologies:** OpenAI Agents SDK, MCP, SQL Server, SearXNG, WandB Weave, asyncio
 
 ### Jarvis — Multi-Agent Personal AI Runtime
-- Built a personal AI assistant runtime with event-driven Signal messaging, SQL-backed semantic memory, and a layered persona/identity system (SOUL, IDENTITY, BOOTSTRAP).
-- Features heartbeat-driven periodic automation, local skill execution (E\*TRADE integration, linked-account transactions, health data explorer), and multi-provider AI support (Claude, OpenAI, Codex).
-- Deployed as systemd services with Signal CLI daemon for real-time communication.
+
+Can a personal AI assistant maintain persistent identity, accumulate memory across conversations, and autonomously act on your behalf?
+
+- Built an event-driven runtime with SQL-backed semantic memory and a layered persona system (SOUL, IDENTITY, BOOTSTRAP) that gives the AI a consistent identity across sessions.
+- Heartbeat-driven automation enables the system to act proactively — executing trades via E\*TRADE, monitoring health data, managing linked accounts — without being prompted.
 - **Technologies:** Python, SQLAlchemy, Signal CLI (JSON-RPC + SSE), systemd, OpenAI/Claude/Codex APIs
 
 ### Agent SDK — Reusable AI Agent Framework
-- Built a clean, extensible SDK for AI agents with tool-calling capabilities, MCP integration, and automatic semantic context compaction at 80% token limits.
-- Factory pattern enables multi-agent systems with specialist agent composition. Powers the equity research agent and other projects.
+- Built an extensible SDK for AI agents with automatic semantic context compaction at 80% token limits — solving the core challenge of keeping agents coherent in long-running tasks.
+- Factory pattern enables specialist agent composition. Powers the equity research agent and other projects.
 - **Technologies:** Python, OpenAI API, MCP, Playwright (browser automation via MCP), Logfire
 
 ### LlamaCraft — LLM Pre-Training from Scratch
-- Pre-trained Llama 2 models from scratch on FineWeb-Edu using a custom 4x RTX 4090 workstation.
-- Implemented quantized training with torchao (float8, AdamW8bit, AdamW4bit, AdamWFp8) and CPU offloading. Trained with DDP via torchrun.
+
+Understanding LLMs means training them from scratch — not just fine-tuning.
+
+- Pre-trained Llama 2 models from scratch on FineWeb-Edu. Explored the training dynamics of quantized training (float8, AdamW8bit, AdamW4bit, AdamWFp8) and how precision affects convergence.
 - Published results on Weights & Biases and exported models to HuggingFace.
 - **Technologies:** PyTorch, torchao, DDP/torchrun, FSDP, HuggingFace, WandB
 
@@ -83,21 +83,21 @@ Multi-stage waterfall fine-tuning and reinforcement learning pipeline for traini
 - **Technologies:** Python, MCP SDK, OpenAI-compatible APIs, Docker
 
 ### Foundary — Neural Transaction Classifier
-- Production text classification microservice with a custom PyTorch Transformer encoder for financial transactions. Supports online learning, batch inference, and multi-backend (CUDA/MPS/CPU) serving.
+- Custom PyTorch Transformer encoder for financial transaction classification. Supports online learning — the model improves continuously as new transactions arrive, not just at training time.
 - **Technologies:** PyTorch, FastAPI, Docker
 
 ### Ember Pulse — iOS Health Data Platform
-- Built the full stack: Swift iOS app collecting HealthKit telemetry with background sync (HKAnchoredObjectQuery, HKObserverQuery), and a FastAPI Python backend with WebAuthn passkey authentication and JWT rotation.
+- Full-stack health telemetry platform: Swift iOS app with HealthKit background sync and a FastAPI backend with WebAuthn passkey authentication. Exploring what becomes possible when personal health data is continuously streamed and queryable.
 - **Technologies:** Swift, iOS 26 SDK, HealthKit, SwiftUI | Python, FastAPI, SQLAlchemy, WebAuthn/FIDO2, Docker
 
 ### Karpathy LLM Training Contributions
-- **llama2.c** (14 commits): Added FineWeb/Dolphin dataset training, GPU data loading and buffering optimizations, hyperparameter tuning for 4090, WandB logging integration.
+- **llama2.c** (14 commits): Added FineWeb/Dolphin dataset training, GPU data loading and buffering optimizations, hyperparameter tuning, WandB logging integration.
 - **nanoGPT**: Added torch.compile, pin_memory, and async data loading optimizations.
 - **llm.c**: Containerized C/CUDA training with Docker.
 - **build-nanogpt**: Fixed PyTorch autocast device type for non-CUDA backends.
 
 ### RL Trading Experiments (Early Research)
-- Built PPO reinforcement learning environments for automated stock trading using custom PyTorch models and TorchRL. Progressed from CartPole to custom stock trading environments with MLP and Transformer architectures.
+- Built PPO reinforcement learning environments for automated stock trading — progressing from CartPole to custom trading environments with MLP and Transformer architectures. This early work led directly to the Qwen3-4B GRPO pipeline.
 - **Technologies:** PyTorch, TorchRL, PPO, custom RL environments
 
 ## Professional Experience
