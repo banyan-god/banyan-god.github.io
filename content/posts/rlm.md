@@ -1,176 +1,90 @@
 ---
 title: "Many Contexts Is All You Need"
 date: 2026-04-30
-description: "RLM: why spawning many fresh context windows beats stretching one long one, and how pi-hydra makes it work with any model — including a 27B on consumer GPUs."
+description: "RLM: why giving AI agents many fresh context windows works better than giving them one really long one."
 author: "Sabareesh"
 draft: false
-tags: ["RLM", "AI agents", "LLM", "context window", "recursive delegation", "vLLM", "Qwen", "open source"]
-categories: ["Artificial Intelligence", "automation"]
+tags: ["RLM", "AI agents", "LLM", "context window", "recursive delegation", "open source"]
+categories: ["Artificial Intelligence"]
 ---
 
-# Abstract
+# The Bet Everyone Is Making
 
-We present Recursive Language Modeling (RLM) — a pattern where an AI agent solves complex tasks not by using a longer context window, but by spawning sub-agents with fresh ones. Each sub-agent receives only its task, operates with full context budget on a clean slate, and returns compressed results to its parent. We implement RLM as [pi-hydra](https://github.com/banyan-god/pi-hydra), an extension for the Pi coding agent. On an ASML equity research task with 5 parallel research streams, a 27B parameter model running on consumer GPUs ($0 API cost) produced a 222-line investment report with buy/sell recommendation — demonstrating that context management, not model scale, is the binding constraint on agent performance.
+The entire industry is betting on longer context windows. 128K, 1M, 10M tokens. The logic sounds right: if the agent could just remember more, it would do more.
 
-# 1. The Problem: Long Context Is a Leaky Bucket
+I've been running agents on real tasks — researching stocks, refactoring codebases, investigating bugs across dozens of files — and I keep seeing the same thing. The agent starts great. Crisp reasoning, focused tool use. Then it gets worse. Not because it's dumb, but because its context is full of junk. Old tool outputs. Files it read 20 turns ago. Failed attempts it should have forgotten. The useful signal is buried.
 
-The industry is racing to build longer context windows. 128K. 1M. 10M tokens. The assumption: if the agent could just hold more, it would perform better.
+A longer context window doesn't fix this. It just gives the agent more room to accumulate noise.
 
-In practice, the opposite happens. As context fills — tool outputs, file contents, dead-end explorations — signal-to-noise ratio degrades. The agent doesn't run out of space. It runs out of focus. A 1M-token window doesn't fix this. It just lets the agent drown slower.
+# The Core Idea
 
-We observe this consistently across tasks: multi-file refactors, deep research, codebase investigations. The agent starts sharp, then degrades. Not from lack of capability — from context pollution.
+What if, instead of making the window longer, you just opened more windows?
 
-The core insight: **the unit of scaling is not the context window. It is the number of context windows.**
+That's RLM. Recursive Language Modeling. The agent doesn't try to hold everything in one context. It breaks the problem into pieces, hands each piece to a fresh copy of itself, and combines the answers.
 
-# 2. RLM: Recursive Language Modeling
+Each copy starts clean. No history. No leftover junk. 100% of its attention goes to the one thing it was asked to do.
 
-RLM treats context windows as a renewable resource. Instead of stretching one, you multiply them.
+Think about how you'd research a stock. You wouldn't sit in one chair and try to remember everything simultaneously — earnings, competitors, geopolitics, valuation, analyst sentiment. You'd split it up. Maybe you read the earnings yourself, ask a friend who follows trade policy about the China risk, ask another friend who tracks valuations to run the numbers. Each person focuses on their piece. You combine it all at the end.
 
-```
-Root (depth 0) — orchestrator, clean context
-├── Head α (depth 1) — subtask A, fresh context
-├── Head β (depth 1) — subtask B, fresh context
-│   ├── Head β₁ (depth 2) — sub-subtask, fresh context
-│   └── Head β₂ (depth 2) — sub-subtask, fresh context
-└── Head γ (depth 1) — subtask C, fresh context
-```
+RLM does exactly this. The root agent is you. The sub-agents are your specialists. Each one gets a fresh brain focused on one thing.
 
-**Definition.** An RLM agent decomposes a task into independent subtasks, delegates each to a child agent with an empty context window, and synthesizes the compressed results. The process is recursive: children may delegate further, bounded by depth limits and resource budgets.
+# Why This Works
 
-Each child receives only its task description. No conversation history. No accumulated tool outputs. 100% of its context budget is available for the actual work. The parent never sees raw material — only distilled output.
+**Fresh context means focused attention.** When a sub-agent is researching ASML's Q1 earnings, its entire context is about that. No leftover file dumps from a previous step. No competing instructions. Just the task and the tools. This is why a small model with clean context often outperforms a big model with polluted context.
 
-This is the key property: **information flows up compressed, not down accumulated.**
+**Parallel beats sequential.** Five sub-agents running at the same time, each with a full context budget, finish faster and produce better results than one agent doing all five tasks back-to-back in a single window that's getting progressively noisier.
 
-# 3. Why Many Contexts > One Long Context
+**Failure doesn't cascade.** If one sub-agent times out or produces garbage, the parent notices and works around it. Maybe it retries, maybe it fills the gap itself. In a single long-context agent, one bad stretch of reasoning corrupts everything that comes after. There's no recovery.
 
-**3.1 Signal-to-noise ratio.** A sub-agent researching ASML's Q1 earnings has its entire context devoted to that task. No leftover file contents from earlier steps, no stale tool outputs, no competing instructions. Fresh context = focused attention.
+**Any model works.** You don't need a model trained on 1M tokens. You need a model that's sharp at 32K tokens — and you hand it 32K of pure signal every time. This means RLM works with open-weight models, local models, even a 27B parameter model on a consumer GPU. The model isn't the bottleneck. The context is.
 
-**3.2 Parallelism.** Five research streams running concurrently on five fresh context windows finish faster than one agent doing them sequentially — and each stream gets full context budget instead of 1/5th of a shared window.
+# The Pattern
 
-**3.3 Graceful degradation.** If one sub-agent fails (timeout, bad output, model error), the parent detects it and compensates. A single long-context agent that corrupts its own state has no recovery path.
+RLM follows a simple loop: **size up, decompose, delegate, combine, evaluate.**
 
-**3.4 Model-agnostic scaling.** RLM works with any model. You don't need a model trained on 1M tokens. You need a model that's good at 32K tokens, and you give it 32K of pure signal.
+1. **Size up** the task. Is it small enough to do directly? If yes, just do it. No recursion needed.
+2. **Decompose** into independent pieces. Each piece should be self-contained — the sub-agent gets only the task description, nothing else.
+3. **Delegate** each piece to a fresh agent. They run in parallel when possible.
+4. **Combine** the results. Deduplicate, resolve conflicts, synthesize.
+5. **Evaluate** — is it complete? If gaps remain, decompose the gaps and delegate again.
 
-# 4. pi-hydra: Implementation
+The recursion is bounded. You set a max depth (typically 3), a budget, a timeout. At the deepest level, agents stop delegating and do the work directly. This prevents infinite spawning and keeps costs predictable.
 
-[pi-hydra](https://github.com/banyan-god/pi-hydra) implements RLM as a Pi extension in ~500 lines of TypeScript. Two tools:
+Depth changes behavior:
+- **Depth 0** — the orchestrator. Breaks the problem apart, stays clean, synthesizes at the end.
+- **Depth 1** — the specialist. Focused on one domain. Delegates only if its piece is still too big.
+- **Depth 2+** — the worker. Does the actual research, writes the actual code, reads the actual files. No more delegation.
 
-**`delegate(task, async?, isolate?, provider?)`** — spawn a sub-agent with a fresh context window. Optionally async (background execution with sentinel file), isolated (own git worktree), or routed to a specific provider/GPU.
+The deeper you go, the more direct work happens. The shallower you are, the more you think and coordinate.
 
-**`tree_status()`** — inspect depth, cost, call count, and remaining timeout across the entire delegation tree.
+# What Changes
 
-### 4.1 Async Fan-Out
+RLM reframes how you think about agent architecture.
 
-The critical capability. Spawn N children concurrently:
+**The unit of scaling isn't the token count — it's the number of context windows.** Instead of asking "how do we fit more into one context?", ask "how do we use more contexts?" A 128K window with 10 fresh agents is more capable than a 1M window with one.
 
-```
-delegate(task: "Research financials", async: true)  → sentinel_A
-delegate(task: "Research moat",       async: true)  → sentinel_B
-delegate(task: "Research geopolitics", async: true) → sentinel_C
-```
+**Context management is the real problem.** We've been focused on making models smarter and context windows longer. But the binding constraint is often neither — it's how much noise accumulates in the working memory. RLM sidesteps the problem entirely by throwing away the noise and starting fresh.
 
-All run in parallel. Root polls for sentinel files, reads compressed results, synthesizes. N fresh contexts working simultaneously.
+**Small models become viable for complex tasks.** A 27B model can't do deep equity research in a single pass. But a 27B model that spawns five copies of itself, each researching one dimension, and then synthesizes the results? That works. I tested it — Qwen 3.6 27B on two consumer GPUs produced a 222-line ASML equity research report with a buy/sell recommendation, covering earnings, moat analysis, geopolitics, valuation, and sentiment. Total API cost: $0.
 
-### 4.2 Tree-Wide Guardrails
+**Humans already work this way.** We don't solve complex problems by holding everything in working memory. We decompose, delegate, specialize, reconvene. Every organization is an RLM system — a tree of agents with bounded context, communicating compressed results upward. RLM just gives AI agents the same structure.
 
-Recursive agents without limits are dangerous. pi-hydra enforces:
+# The Tradeoffs
 
-| Guardrail | Default | Mechanism |
-|-----------|---------|-----------|
-| Max depth | 3 | `delegate` tool hidden at limit |
-| Max calls | 20 | Shared counter file |
-| Budget | $5.00 | Shared cost ledger |
-| Timeout | 600s | Wall-clock from tree root |
+RLM isn't free. There are real costs.
 
-No coordination server. All state is shared via lock-free append-only files.
+**Latency.** Spawning sub-agents takes time. If you're running local models, each agent needs inference capacity. Five concurrent agents on one GPU will be slow. You either need multiple GPUs or you accept the throughput hit.
 
-### 4.3 Depth-Aware Behavior
+**Lossy compression.** When a sub-agent compresses its findings into a summary, details get lost. The parent never sees the raw data — that's the whole point — but it means the synthesis depends on the sub-agent's judgment about what matters. A bad summary propagates bad conclusions.
 
-The system prompt encodes different strategies per depth:
+**Coordination overhead.** The root has to decompose well. If the subtasks aren't truly independent, you get gaps or overlaps. Decomposition is a skill, and some models are better at it than others.
 
-- **Depth 0 (root):** Orchestrate. Decompose. Never fill context with raw data. Preserve budget for synthesis.
-- **Depth 1 (coordinator):** Focused execution. Delegate only if 3+ independent subparts remain.
-- **Depth 2+ (worker):** Leaf node. Direct action — bash, file I/O, web tools. No further delegation.
+**Not everything decomposes.** Sequential reasoning — where step 2 depends on step 1's output — doesn't parallelize. RLM shines on tasks with independent parts: research, refactoring, analysis, review. It doesn't help with a single chain of thought that must be followed step by step.
 
-Deeper agents do more work. Shallower agents do more thinking. The recursion is productive at every level.
+# Try It
 
-### 4.4 Shared Sessions
+RLM is a pattern, not a product. You can implement it in any agent framework that lets you spawn sub-processes.
 
-Every agent logs its session to a shared directory. Siblings can read what others found:
+One implementation: [pi-hydra](https://github.com/banyan-god/pi-hydra) — an RLM extension for the Pi coding agent. MIT-licensed, works with any model (API or local via vLLM/Ollama), includes async fan-out, tree-wide cost tracking, depth-aware behavior, and shared sessions between sibling agents.
 
-```bash
-delegate-sessions list          # all sessions in the tree
-delegate-sessions read --last   # most recent
-delegate-sessions grep "ASML"   # search across all
-```
-
-Later agents build on earlier findings. No repeated work.
-
-# 5. Experiment: $0 ASML Equity Research
-
-### 5.1 Setup
-
-Model: Qwen 3.6 27B, served via vLLM on two consumer GPUs (NVIDIA 4090). Root on GPU 1 (port 8001), children on GPU 2 (port 8002) via `DELEGATE_CHILD_PROVIDER=vllm2`. Total API cost: **$0.00**.
-
-One critical configuration discovery: `thinkingFormat` must be `"qwen-chat-template"` when serving Qwen through vLLM. The alternative (`"qwen"`) sends the thinking parameter in the wrong format. vLLM accepts the request but the model never produces tool calls — the agent loop silently breaks. This single config value took hours to diagnose.
-
-### 5.2 Task
-
-> Produce a buy/sell recommendation for ASML stock with deep multi-source research.
-
-### 5.3 Decomposition
-
-The root spawned 5 async delegates:
-
-| Head | Domain | Context |
-|------|--------|---------|
-| α | Financials | Q1 2026 earnings, margins, guidance vs. consensus |
-| β | Competitive moat | EUV/High-NA monopoly, tech roadmap, threats |
-| γ | Geopolitics | China export curbs, chip war, EU/FX impact |
-| δ | Valuation | P/E, P/S, EV/EBITDA vs. history and peers |
-| ε | Sentiment | Analyst calls, institutional moves, catalysts |
-
-Five fresh context windows, each 100% focused on its research domain. Zero context shared between them.
-
-### 5.4 Results
-
-3/5 delegates completed within timeout. Root detected 2 timeouts (inference throughput bottleneck at ~5 tok/s under concurrent load), extracted partial outputs, and filled gaps itself. Graceful degradation — exactly as designed.
-
-Output: 222-line equity research report.
-
-- **Verdict: BUY — Moderate conviction**
-- **12-month target: $1,500-$1,750** (5-22% upside)
-- Covered Q1 2026 beat (€8.8B vs €8.5B est), High-NA at $370M/unit, installed base recurring revenue, China revenue decline, AI capex supercycle
-
-A 27B model with many fresh contexts produced analyst-grade research. The model wasn't the bottleneck. Context was.
-
-### 5.5 Throughput
-
-| Config | Tokens/sec | Notes |
-|--------|-----------|-------|
-| 1 request, 1 GPU | ~26 | Baseline |
-| 5 concurrent, 1 GPU | ~5 per request | Contention |
-| Root on GPU1, children on GPU2 | ~26 each | No contention |
-
-Multi-GPU fan-out is essential for practical RLM on local hardware.
-
-# 6. Discussion
-
-**Context is the bottleneck, not intelligence.** A 27B model with fresh context outperforms a frontier model drowning in 100K tokens of accumulated noise. RLM is a context management strategy, not a capability multiplier.
-
-**The recursive pattern is natural.** Humans don't solve complex problems by holding everything in working memory. We decompose, delegate to specialists, and synthesize. RLM gives agents the same workflow.
-
-**Local models are viable orchestrators.** Qwen 3.6 27B reliably decomposes tasks, makes tool calls, and synthesizes sub-agent output at $0 per run. For long-running research tasks that would burn $20+ in API credits, the economics are decisive.
-
-**The unit of scaling is the context window, not the token count.** Instead of asking "how do we fit more tokens?", ask "how do we use more windows?" This reframes the entire architecture of agent systems.
-
-# 7. Try It
-
-[pi-hydra](https://github.com/banyan-god/pi-hydra) is MIT-licensed. Works with any model Pi supports — OpenAI, Anthropic, Google, or local models via vLLM/Ollama.
-
-```bash
-npm install pi-hydra
-pi-hydra --provider vllm --model Qwen/Qwen3.6-27B "Research and summarize X"
-```
-
-Source, system prompt, and CLI tools: [github.com/banyan-god/pi-hydra](https://github.com/banyan-god/pi-hydra)
+The core thesis stands independent of any implementation: **many contexts is all you need.**
