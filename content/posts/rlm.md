@@ -1,83 +1,112 @@
 ---
 title: "Many Contexts Is All You Need"
 date: 2026-04-30
-description: "RLM — Recursive Language Modeling. Why many fresh context windows beat one long one."
+description: "RLM — Recursive Language Modeling. Treat context windows like stack frames: spawn fresh ones, recurse, compress results upward."
 author: "Sabareesh"
 draft: false
 tags: ["RLM", "AI agents", "LLM", "context window", "recursive delegation", "open source"]
 categories: ["Artificial Intelligence"]
 ---
 
-Context windows are working memory. They degrade long before they fill up.
+Context windows are working memory. They don't just fill up — they degrade. By turn 20, an agent's context is mostly stale tool outputs and dead-end explorations. The signal that matters is buried under noise the model can't forget. Bigger windows don't fix this. They just let the decay happen slower.
 
-Every agent I've run on a complex task follows the same arc: sharp for the first few turns, then progressively worse. Not dumber — noisier. By turn 20, the context is 80% old tool outputs, dead-end explorations, and files that were relevant three steps ago. The model is spending its attention on junk.
+RLM — Recursive Language Modeling — starts from a different premise: **context is not a fixed resource. It's a renewable one.** An agent can spawn a copy of itself with a completely empty context window, hand it a focused task, and get back a compressed result. That copy can do the same thing. The recursion continues until the task is small enough to solve directly.
 
-The industry solution is bigger windows. 128K, 1M, 10M. This is like treating a cluttered desk by buying a bigger desk. You still can't find anything.
+This is not multi-agent orchestration. It's recursion. The same distinction that exists in programming between a `for` loop and a recursive function.
 
-RLM takes the opposite approach: **more desks, not bigger ones.**
+# Recursion, Not Orchestration
 
-# Recursive Language Modeling
+Multi-agent systems assign different roles to different agents. One agent searches, another analyzes, another writes. The roles are designed upfront. The agents are different.
 
-An RLM agent doesn't try to hold everything in one context. It breaks the task apart, hands each piece to a fresh copy of itself, and combines the compressed answers.
+RLM uses one agent. The same model, the same tools, the same system prompt. It calls itself with a smaller problem. The specialization isn't designed — it emerges from two things: the task description each copy receives, and its depth in the tree.
 
-![RLM Architecture](/blog-images/rlm-architecture.svg)
+In computer science, a recursive function and an iterative loop can solve the same problem. But they handle state differently. An iterative loop accumulates state in variables that persist across iterations — and that state can get stale, corrupt, or bloated. A recursive function gets a fresh stack frame on every call. Each frame is clean. The only information that crosses frames is the return value.
 
-Each sub-agent starts with an empty context. It gets one job description, nothing else. No history from the parent. No leftover outputs from sibling tasks. Its full attention budget goes to the actual work.
+RLM applies the same idea to agents. A conventional agent is an iterative loop: read, act, read, act — accumulating everything in one context window that gets progressively noisier. An RLM agent is a recursive function: each call gets a fresh context (stack frame), does focused work, and returns a compressed result (return value). The parent never inherits the child's mess.
 
-When it finishes, it doesn't return its entire context. It returns a summary. This is the critical part — the **compression boundary** between parent and child. Raw data enters at the leaves, gets distilled at each level, and arrives at the root as clean, synthesis-ready input.
+The context window IS the stack frame.
 
-The root agent's context contains the original task and a handful of compressed summaries. It's practically empty. It does the easiest job — combining clean inputs — with the freshest context in the entire tree.
+# Compression Is the Mechanism
 
-# Why Compression Boundaries Matter
+What makes recursion work in RLM isn't the spawning — it's what happens at the boundary between parent and child.
 
-A sub-agent researching ASML's Q1 earnings might read 15 articles, follow 3 dead ends, and produce 6 tool outputs. The parent sees none of that. It sees: "Revenue €8.8B, beat estimates by 3.5%, margins 53%, guidance raised."
+A child agent might read 15 articles, try 3 approaches, generate 30K tokens of tool output. The parent sees none of that. It sees a 400-token summary: the distilled finding, the key numbers, the conclusion. This compression boundary is where noise gets killed.
 
-That's 20 tokens instead of 20,000. And those 20 tokens are pure signal.
+Each level of the tree is a compression step. Raw data enters at the leaves. Each level refines it — drops irrelevant details, keeps the signal, passes a tighter summary upward. By the time information reaches the root, it's been through multiple rounds of distillation. The root's context contains the original task and a handful of clean summaries. It's practically empty. It does the final synthesis with maximum attention on minimum noise.
 
-This is what separates RLM from "just use a long context." In a long context, everything is equally present — the model has to figure out what to attend to in a sea of tokens. In RLM, the compression already happened. Each boundary is a filter that drops noise and keeps signal. The deeper the tree, the more refined the information that reaches the root.
+This is the opposite of long context. In a long context, the model has to compress on the fly, deciding what to attend to in a sea of 100K tokens. It's implicit, approximate, and gets worse as context grows. In RLM, compression is explicit and happens at defined boundaries. Each boundary is a filter that a full agent — with reasoning, judgment, and task awareness — applied deliberately.
 
-# Depth Changes Behavior
+The return value is the compressed result. The stack frame is disposed of. The noise stays local.
 
-The recursion has a structure:
+# Depth Changes How the Model Thinks
 
-**Depth 0** is the coordinator. It reads the task, decides how to break it up, delegates, waits, synthesizes. It never does raw work — reading files, searching the web, running tools. That would pollute its context. It stays clean for the final synthesis.
+Here's the part that surprised me. The same model, given the same tools, behaves fundamentally differently depending on its depth in the tree.
 
-**Depth 1** is the specialist. It owns one piece — financials, or competitive analysis, or geopolitical risk. It goes deep on that one thing. If the piece is still too broad, it can delegate further.
+**At depth 0**, the agent is a strategist. It reads the task, thinks about structure: what are the independent parts? What depends on what? How should the work be divided? It decomposes, delegates, waits, synthesizes. It almost never touches a tool directly — doing so would pollute its context with raw data it doesn't need.
 
-**Depth 2+** is the worker. No more delegation. It picks up tools — bash, web search, file I/O — and executes. Every leaf node in the tree is doing direct work with a clean context focused on a narrow task.
+**At depth 1**, the agent is a specialist. It owns one domain and goes deep. It uses tools — web search, file reading, computation — but with tight focus. If its domain is still too broad, it decomposes further and recurses.
 
-The rule: the deeper you go, the more you work with your hands. Shallow agents think. Deep agents act. Without this, agents just keep spawning copies of themselves in an infinite loop of delegation.
+**At depth 2+**, the agent is a worker. It picks up tools and executes. No decomposition, no delegation. Just direct work on a narrow problem with a clean context.
 
-The recursion is bounded — max depth (typically 3), a call budget, a timeout. At the limit, the delegate tool disappears. The agent has no choice but to work directly.
+This isn't three different agents with three different prompts. It's the same agent, adapting its behavior to its position in the recursion. Shallow agents think. Deep agents act. This gradient from planning to execution emerges naturally from bounded recursion with depth-aware guidance.
+
+The same model, the same weights, exhibiting different cognitive modes based on where it sits in a recursive call stack. The depth parameter is doing surprisingly heavy lifting.
+
+# Why Not Just Use a Longer Context?
+
+Three specific mechanisms work against long context:
+
+**Attention dilution.** Transformer attention distributes across all tokens. As context grows, each token gets proportionally less attention. Important information from turn 3 competes with tool output from turn 18. This is measurable — retrieval accuracy drops in the middle of long contexts even in models specifically trained for it.
+
+**Positional advantage.** Early context gets disproportionate attention from positional encoding. Every RLM sub-agent exploits this — its task is always at the top of a fresh context, in the highest-attention position. A single long-context agent buries later tasks under layers of prior output.
+
+**Accumulation without forgetting.** A context window can't selectively forget. Every failed approach, every irrelevant tool output, every intermediate step stays present and competes for attention. RLM handles this structurally: the child's context (with all its noise) is discarded. Only the return value survives.
+
+Long context is the right tool for sequential reasoning where every step depends on the last. RLM is the right tool for problems with recursive structure — tasks that decompose into independent parts that each benefit from focused attention.
+
+# The Organizational Parallel
+
+This pattern isn't new. It's how every effective organization works.
+
+A CEO doesn't read every customer email. Information flows upward through layers of compression — team leads summarize for managers, managers summarize for directors, directors summarize for executives. Each layer filters noise and passes signal. The CEO makes decisions based on distilled input, not raw data.
+
+This structure exists because human working memory is bounded. Seven items, plus or minus two. Organizations are a recursive solution to the same constraint RLM addresses: individual working memory is finite, but the problems are bigger than any one working memory can hold.
+
+RLM gives agents the same structure. The root is the executive — clean context, high-level synthesis. The leaves are individual contributors — deep domain work with focused attention. The middle layers are managers — coordinating and compressing.
+
+The tree isn't an arbitrary architecture choice. It's the natural shape of bounded-memory information processing.
 
 # What This Gets You
 
-**Small models doing complex work.** A 27B model can't research a stock in a single pass — not enough context, not enough focus. But five copies of it, each researching one dimension with a fresh context? That works. I ran Qwen 3.6 27B on two consumer GPUs, five parallel delegates, and got a 222-line equity research report with earnings analysis, moat assessment, geopolitical risk, valuation multiples, and a buy/sell call. $0 API cost.
+**Small models doing hard tasks.** A 27B model can't research a stock in one pass. But a 27B model that recurses — root decomposes into five specialists, one specialist decomposes further into two workers — produces a 222-line equity research report covering earnings, moat, geopolitics, valuation, and sentiment. Same model at every node. The capability comes from the structure, not the parameter count.
 
-**Parallel execution.** Five agents on five tasks simultaneously, each with full context budget. A single agent doing the same five tasks sequentially gets worse at each one because its context is accumulating the output of all previous tasks.
+**Context quality over context quantity.** Every agent in the tree works with clean context tuned to its specific task. No agent is polluted by sibling work. The root synthesizes from compressed summaries, not raw data. Signal-to-noise ratio stays high at every level.
 
-**Failure isolation.** If one sub-agent times out or produces garbage, the parent notices and works around it — retries, fills the gap itself, or proceeds with partial data. In a single long-context run, one bad stretch of reasoning contaminates everything that follows. There's no rollback.
-
-**Model-agnostic scaling.** You don't need a model trained on 1M tokens. You need a model that's sharp at 32K and you give it 32K of clean input every time. RLM works with APIs, open-weight models, local inference — anything that can follow instructions and use tools.
+**Structural fault tolerance.** A failed child is a failed branch, not a failed run. The parent detects it and compensates — retries, fills gaps, proceeds with partial data. In a single-context agent, failure cascades forward through the entire remaining context.
 
 # The Tradeoffs
 
-**Compression is lossy.** The parent trusts each child's judgment about what mattered. A bad summary propagates bad conclusions upward with no way to recover the dropped details.
+**Compression is lossy.** Each boundary drops details. The parent trusts the child's judgment about what matters. A bad summary propagates bad conclusions upward, and the dropped details can't be recovered.
 
-**Decomposition is a skill.** The root has to break the task into genuinely independent pieces. Hidden dependencies between subtasks — where the valuation depends on the geopolitical analysis, say — create gaps the synthesis can't bridge.
+**Decomposition quality matters.** If the root splits the task poorly — creates dependencies between subtasks, misses an important dimension, splits too fine or too coarse — the synthesis can't recover. The quality of the recursive decomposition bounds the quality of the final result.
 
-**Not everything parallelizes.** Sequential reasoning where step 2 depends on step 1 doesn't decompose. RLM is for tasks with independent parts: research, multi-file refactors, analysis, review. For a single chain of thought, long context is exactly what you need.
+**Inference cost scales with the tree.** Each node needs compute. On local hardware, concurrent agents compete for GPU throughput. The fix is splitting across GPUs, but that requires hardware. On APIs, every agent in the tree costs tokens.
 
-**Inference cost.** Each agent needs its own compute. On one GPU, concurrent agents compete for throughput — I saw 26 tok/s drop to 5 tok/s with five concurrent requests. The fix is multi-GPU: root on one, children on another. On APIs, you're paying per token for every agent in the tree.
+**Sequential tasks don't benefit.** When step 2 fundamentally depends on step 1's output, there's nothing to parallelize and the overhead of spawning and compressing is pure waste.
 
-# The Point
+# The Thesis
 
-We're solving the wrong problem. The bottleneck isn't how much the model can hold — it's how clean its working memory is. A fresh 32K context with focused input beats a polluted 1M context. Same model, same tokens, different signal-to-noise ratio.
+The industry is scaling context length. RLM scales context count. These solve different problems.
 
-RLM exploits this. Spawn fresh contexts. Compress across boundaries. Let every model in the tree work with a clean slate.
+Long context addresses: "I need to see more at once."
+RLM addresses: "I need to think clearly about each part."
+
+The binding constraint on agent performance today isn't model intelligence or context size. It's context quality — how much of the working memory is signal versus noise. RLM attacks this directly: every agent in the tree gets a clean slate, and the compression boundaries ensure the noise stays local.
+
+Same model. Same tokens. Different structure. Better results.
 
 Many contexts is all you need.
 
 ---
 
-One implementation: [pi-hydra](https://github.com/banyan-god/pi-hydra) — RLM as a Pi extension. MIT-licensed, async fan-out, depth-aware behavior, tree-wide cost tracking.
+One implementation: [pi-hydra](https://github.com/banyan-god/pi-hydra) — RLM as a Pi coding agent extension. Async fan-out, depth-aware behavior, tree-wide cost/call tracking, shared sessions between siblings. MIT licensed.
