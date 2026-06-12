@@ -1,5 +1,5 @@
 ---
-title: "Watercooling 4× Blackwell: The Inductor That Came Off"
+title: "4× RTX PRO 6000 Blackwell on Water, and the One Card That Wouldn't Behave"
 date: 2026-06-12
 description: "Converting four RTX PRO 6000 Blackwell cards to waterblocks, finding a VRM choke loose on the workbench, and getting back to 41k tok/s."
 author: "Sabareesh"
