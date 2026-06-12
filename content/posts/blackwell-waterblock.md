@@ -27,7 +27,7 @@ This post is the short version: what we did, what broke, how we found it, and wh
 
 - 4× RTX PRO 6000 Blackwell Workstation (GB202, 96 GB GDDR7, 600 W)
 - Threadripper Pro 7995WX on WRX90
-- Custom loop: single distro/reservoir, one pump, two 480 mm radiators
+- Custom loop: single distro/reservoir, one pump, two Alphacool NexXxoS XT45 Full Copper 1260 mm Super Nova radiators (9× 140 mm fans each), four GPUs plumbed in parallel
 - ~2 kW sustained draw, so the AC circuit got upgraded mid-build after an earlier all-cards-down event under load
 
 The waterblocks themselves are straightforward: pull the stock cooler, clean the die, fresh paste on the GPU, thermal pads on memory and VRMs, torque the block down in a star pattern. The catch on these cards is the backplate — the memory packages on the back also need cooling, which means either pads against the case panel or small finned heatsinks glued on with thermal adhesive. I went with HOAOH 2.0 W/m·K tape on most spots and GENNEL G109 thermal adhesive where I needed something that wouldn't migrate.
