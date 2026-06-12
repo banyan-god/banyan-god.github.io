@@ -17,7 +17,7 @@ categories:
   - GPU
 ---
 
-Four RTX PRO 6000 Blackwell cards in one chassis at 600 W each is 2.4 kW of heat to evict. Air coolers can do it, but the fans are loud and the cards stack their exhaust into each other. So we converted all four to waterblocks. Most of the build went fine. One didn't — and the reason was sitting on the workbench.
+This rig exists to **train models**, not serve them. Four RTX PRO 6000 Blackwell cards in one chassis at 600 W each is 2.4 kW of heat to evict, and training runs are hours-to-days long with every card pinned at full TDP. Air coolers can do it for an inference burst; they cannot do it for a multi-day training job — the fans get loud, the cards stack their exhaust into each other, and the first one to thermal-throttle stalls the whole synchronous step. So we converted all four to waterblocks. Most of the build went fine. One didn't — and the reason was sitting on the workbench.
 
 This post is the short version: what we did, what broke, how we found it, and where we landed.
 
@@ -111,6 +111,8 @@ A few small things that would have caught this on day one:
 
 ## What the rig is doing now
 
-The four cards run a DP=4 vLLM deployment of Qwen3.6-27B — one independent instance per GPU, an nginx load balancer in front, exposed through a Cloudflare tunnel. At 1,024 concurrent in-flight requests with 5,120-token outputs, it does just over **8,000 output tokens per second** sustained, balanced to within 0.7% across the four endpoints, with KV cache at 99.6% and every card pulling its full 600 W. The synthetic stress hits ~41k tok/s because batches are shorter and prefix overhead is hidden; the production-shaped workload at 5k-token generations runs the cards just as hard but spends more cycles on KV. The waterblocks are why that's a 24/7 workload and not a 10-minute demo.
+The primary workload is **training**: multi-day BF16 runs across all four cards at sustained 600 W each, roughly 840 TFLOPS aggregate. Air cooling can't hold that envelope — the cards throttle into the mid-80s °C, the slowest card gates the synchronous step, and effective TFLOPS sag over the course of a long run. On water, every card stays at full boost for the entire job and step times stay flat. That's the whole point of the conversion.
+
+When the rig is idle between training jobs, it doubles as an inference endpoint: a DP=4 vLLM deployment of Qwen3.6-27B, one independent instance per GPU, nginx load balancer in front, exposed through a Cloudflare tunnel. At 1,024 concurrent in-flight requests with 5,120-token outputs it does just over **8,000 output tokens per second** sustained, balanced to within 0.7% across the four endpoints, KV cache at 99.6%, every card pulling its full 600 W. Same thermal envelope as a training step, different shape.
 
 The 85N inductor is back where it belongs.
