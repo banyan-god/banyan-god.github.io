@@ -76,7 +76,9 @@ Now the failure mode makes sense. Idle and light loads: the remaining chokes car
 
 ## Putting it back
 
-Resoldering a power inductor onto a multi-layer GPU PCB is not glamorous work but it isn't exotic either. Flux the pads, tin them lightly, place the part, reflow with a hot-air rework station at ~330 °C with the surrounding area shielded. The pads on these inductors are big and flat, which actually makes them easier to land than the fine-pitch stuff next to them. Visual check under magnification, continuity check across the part, reinstall the waterblock with fresh paste and pads, back in the loop.
+Resoldering a power inductor onto a multi-layer GPU PCB is not glamorous work but it isn't exotic either. I did it with a **$40 SmartFix soldering kit from Amazon** — not a $500 rework station. Flux the pads, tin them lightly, place the part, reflow with the surrounding area shielded. The pads on these inductors are big and flat, which actually makes them easier to land than the fine-pitch stuff next to them. Visual check under magnification, continuity check across the part, reinstall the waterblock with fresh paste and pads, back in the loop.
+
+If you're hesitating because you don't own pro rework gear: you don't need it for a part this size. A cheap kit, patience, and a steady hand are enough.
 
 Powered on. `nvidia-smi` showed all four cards. Ran the standard stress suite on the repaired card alone:
 
