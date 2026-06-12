@@ -23,13 +23,11 @@ This post is the short version: what we did, what broke, how we found it, and wh
 
 ## The rig
 
-![Four waterblocked RTX PRO 6000 Blackwells in the open bench](/blog-images/wb-rig-4gpu.jpg)
-
 - 4× RTX PRO 6000 Blackwell Workstation (GB202, 96 GB GDDR7, 600 W)
 - Threadripper Pro 7995WX on WRX90
 - 4× Bykski waterblocks (full-cover, GPU + VRM + memory front-side)
 - Custom loop: single distro/reservoir, two pumps, distilled water, two Alphacool NexXxoS XT45 Full Copper 1260 mm Super Nova radiators (9× 140 mm fans each), four GPUs plumbed in parallel
-- 2× PSUs to feed the ~2.4 kW sustained draw; AC circuit got upgraded mid-build after an earlier all-cards-down event under load
+- 2× 1500 W PSUs (3 kW total budget) to feed the ~2.4 kW sustained draw; AC circuit got upgraded mid-build after an earlier all-cards-down event under load
 
 The waterblocks themselves are straightforward: pull the stock cooler, clean the die, fresh paste on the GPU, thermal pads on memory and VRMs, torque the block down in a star pattern. The catch on these cards is the backplate — the memory packages on the back also need cooling, which means either pads against the case panel or small finned heatsinks glued on with thermal adhesive. I went with HOAOH 2.0 W/m·K tape on most spots and GENNEL G109 thermal adhesive where I needed something that wouldn't migrate.
 
