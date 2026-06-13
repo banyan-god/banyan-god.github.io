@@ -37,11 +37,11 @@ That's one radiator. There are two of them.
 
 Why this much radiator for a 2.4 kW load? Two reasons. First, training jobs run for days — there's no "let the heat soak the radiator and recover later." The loop has to dump 2.4 kW continuously, and a smaller rad would force the fans into the high-RPM range where they're loud. With 18× 140 mm of surface, the fans run quietly and the coolant Δt across the rads stays small. Second, sizing for headroom means a single fan failure or a clogged dust filter doesn't end the run.
 
-The waterblocks themselves are straightforward: pull the stock cooler, clean the die, fresh paste on the GPU, thermal pads on memory and VRMs, torque the block down in a star pattern. The catch on these cards is the backplate — the memory packages on the back also need cooling, which means either pads against the case panel or small finned heatsinks glued on with thermal adhesive. I went with HOAOH 2.0 W/m·K tape on most spots and GENNEL G109 thermal adhesive where I needed something that wouldn't migrate.
+The waterblocks themselves are straightforward: pull the stock cooler, clean the die, fresh paste on the GPU, thermal pads on memory and VRMs, torque the block down in a star pattern. The catch on these cards is the backplate — the memory packages on the back also need cooling, which means either pads against the case panel or small finned heatsinks bonded on with thermal adhesive.
 
 ## The card that wouldn't behave
 
-Three cards came up clean. The fourth — GPU 1 on this rig — would idle fine, then fall off the bus under load. The dmesg signature was always the same:
+All four cards came up clean and ran for about **a week** without issue — training and inference, full load, no Xids. Then one of them — GPU 1 — started falling off the bus under load. It would idle fine, run short bursts fine, and then drop out partway into a sustained workload. The dmesg signature was always the same:
 
 ```
 NVRM: Xid (PCI:0000:02:00): 79, pid='<unknown>', GPU has fallen off the bus.
@@ -66,9 +66,7 @@ If you look at the upper-right cluster of chokes, one pad is empty. There are tw
 
 ![Empty pad close-up, with the missing part on the cloth above](/blog-images/wb-empty-pad.jpg)
 
-The two shiny rectangles are the landing pads. The component that should be bridging them is gone.
-
-It was on the bench.
+The two shiny rectangles are the landing pads. The component that should be bridging them is gone — it came up with the thermal pad as I was peeling it back.
 
 ## The part
 
@@ -76,9 +74,11 @@ It was on the bench.
 
 ![Same part, 85N marking visible](/blog-images/wb-choke-85n.jpg)
 
-About 3 mm on a side, marked **85N**, identical to the 23 still on the board. At some point during the waterblock conversion — most likely while peeling the stock thermal pad off the VRM area — the choke came off with the pad and ended up on the mat. It's small enough that it didn't get noticed during reassembly.
+About 3 mm on a side, marked **85N**, identical to the 23 still on the board. The thermal pad on the VRM area had pulled it off cleanly during disassembly — which only happens when the solder joint underneath is already cracked. Healthy SMD joints don't release to thermal-pad adhesion; you have to apply real force to lift one of these chokes.
 
-Now the failure mode makes sense. Idle and light loads: the remaining chokes carry the current without complaint. Sustained inference at 600 W: ripple climbs, one of the GPU's internal rails dips out of spec, and the card aborts the link rather than corrupt data. Hence Xid 79 only under real load, and only on this one card.
+That tells the story: the joint was marginal from the start. The card passed initial bring-up and ran fine at light loads for a week. Once it had spent enough hours pulling 600 W, the thermal cycling on a weak joint widened the crack until the inductor lost reliable contact under transient current. Hence the failure mode — idle fine, short bursts fine, sustained load → Xid 79.
+
+With one inductor effectively out of the picture under load, the remaining chokes carry its share. The regulator's feedback loop gets noisier, ripple climbs, one of the GPU's internal rails dips out of spec, and the card aborts the PCIe link rather than corrupt data. That's Xid 79 + DPC containment in a nutshell — and it only shows up under real, sustained load.
 
 ## Putting it back
 
@@ -109,13 +109,12 @@ Xid events: 0
 
 The repaired card runs the coolest of the four — fresh paste and pads. The other three are within 4% of each other on inference and within 3% on training, which is about as tight as fleet matching gets on stock silicon. The water loop holds every card at full boost indefinitely; on air, the same workload throttled the cards to the mid-80s °C and clocked them down.
 
-## What I'd do differently
+## Takeaways
 
-A few small things that would have caught this on day one:
-
-- **Photograph the back of the card before you start.** Side-by-side with the post-reassembly shot, a missing 3 mm component is obvious. Without the reference, it's invisible.
-- **Count parts after pad removal.** The thermal pads on stock coolers are sticky enough to pull small SMD components off if they're already poorly bonded from the factory. Anything that comes off with the pad should be found before the block goes back on.
-- **Don't chase software when the failure signature points at the card.** Xid 79 with a DPC containment event under load and only under load is a hardware signal. I spent a few hours on driver and inference-engine theories I should have skipped.
+- **A card that ran fine for a week is not proof of healthy hardware.** Marginal SMD joints can pass initial bring-up and only fail after enough thermal cycles at full load. "It worked yesterday" is not load-bearing evidence.
+- **Xid 79 + DPC containment, only under sustained load, only on one card, is a hardware signal.** Driver swaps, CUDA reinstalls, and inference-engine theories were dead ends I spent hours on. The failure pattern itself told the story — listen to it earlier.
+- **When peeling thermal pads off a VRM area, peel slowly and watch what comes off with them.** Anything that lifts with the pad — even if it looks like a fragment of pad — should be inspected. A 3 mm choke is small enough to miss.
+- **You don't need pro rework gear to put it back.** A $40 kit and a steady hand handle 3 mm power inductors. The pads are big and flat; it's not fine-pitch work.
 
 ## What the rig is doing now
 
