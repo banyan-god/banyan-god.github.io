@@ -17,9 +17,11 @@ categories:
   - GPU
 ---
 
-This rig exists to **train models**, not serve them. Four RTX PRO 6000 Blackwell cards in one chassis at 600 W each is 2.4 kW of heat to evict, and training runs are hours-to-days long with every card pinned at full TDP. Air coolers can do it for an inference burst; they cannot do it for a multi-day training job — the fans get loud, the cards stack their exhaust into each other, and the first one to thermal-throttle stalls the whole synchronous step. So we converted all four to waterblocks. Most of the build went fine. One didn't — and the reason was sitting on the workbench.
+This rig exists to **train models**, not serve them. Four RTX PRO 6000 Blackwell cards in one chassis at 600 W each is 2.4 kW of heat to evict, and training runs are hours-to-days long with every card pinned at full TDP. Air coolers can do it for an inference burst; they cannot do it for a multi-day training job — the fans get loud, the cards stack their exhaust into each other, and the first one to thermal-throttle stalls the whole synchronous step.
 
-This post is the short version: what we did, what broke, how we found it, and where we landed.
+So we converted the cards to waterblocks. We did **one card first** as a pilot, ran it for about a week, and only after that did we touch the other three. That sequencing matters — it's why we have a story to tell. The pilot card failed, taught us a lesson, and the lesson is the reason the other three went on without incident.
+
+This post is the short version: what we did, what broke, what we learned, and where we landed.
 
 ## The rig
 
@@ -39,9 +41,11 @@ Why this much radiator for a 2.4 kW load? Two reasons. First, training jobs run 
 
 The waterblocks themselves are straightforward: pull the stock cooler, clean the die, fresh paste on the GPU, thermal pads on memory and VRMs, torque the block down in a star pattern. The catch on these cards is the backplate — the memory packages on the back also need cooling, which means either pads against the case panel or small finned heatsinks bonded on with thermal adhesive.
 
-## The card that wouldn't behave
+## The pilot card
 
-All four cards came up clean and ran for about **a week** without issue — training and inference, full load, no Xids. Then one of them — GPU 1 — started falling off the bus under load. It would idle fine, run short bursts fine, and then drop out partway into a sustained workload. The dmesg signature was always the same:
+The first card went into the loop alone — the rest were still on air. The plan was: convert one, soak-test it for a week under real workloads, only then commit to the other three. That kept the failure surface small while we learned the card.
+
+For about a week, the pilot ran clean. Training, inference, full load, no Xids. Then it started falling off the bus under load. It would idle fine, run short bursts fine, and then drop out partway into a sustained workload. The dmesg signature was always the same:
 
 ```
 NVRM: Xid (PCI:0000:02:00): 79, pid='<unknown>', GPU has fallen off the bus.
@@ -62,11 +66,11 @@ This is the back side of the GPU with the block off. The big metal lid in the mi
 
 A 600 W card has a lot of these chokes for a reason. They share the load. Lose one and the rest pick up its share, but the regulator's feedback loop gets unhappy and the current waveform gets noisy.
 
-If you look at the upper-right cluster of chokes, one pad is empty. There are two bare solder lands with nothing on them.
+So I pulled the waterblock off the pilot card cold — straight from the rig to the workbench, peeled the thermal pads. The pads on the VRM area came up. So did one of the chokes.
 
 ![Empty pad close-up, with the missing part on the cloth above](/blog-images/wb-empty-pad.jpg)
 
-The two shiny rectangles are the landing pads. The component that should be bridging them is gone — it came up with the thermal pad as I was peeling it back.
+In the upper-right cluster, one footprint is empty. Two bare solder lands. The component that should be bridging them came up with the pad.
 
 ## The part
 
@@ -74,11 +78,17 @@ The two shiny rectangles are the landing pads. The component that should be brid
 
 ![Same part, 85N marking visible](/blog-images/wb-choke-85n.jpg)
 
-About 3 mm on a side, marked **85N**, identical to the 23 still on the board. The thermal pad on the VRM area had pulled it off cleanly during disassembly — which only happens when the solder joint underneath is already cracked. Healthy SMD joints don't release to thermal-pad adhesion; you have to apply real force to lift one of these chokes.
+About 3 mm on a side, marked **85N**, identical to the 23 still on the board. A healthy SMD joint does not release to thermal-pad adhesion — you have to apply real force to lift one of these chokes. That this one came up means the solder underneath was already cracked.
 
-That tells the story: the joint was marginal from the start. The card passed initial bring-up and ran fine at light loads for a week. Once it had spent enough hours pulling 600 W, the thermal cycling on a weak joint widened the crack until the inductor lost reliable contact under transient current. Hence the failure mode — idle fine, short bursts fine, sustained load → Xid 79.
+That cracked joint is the whole story. The card had passed initial bring-up and ran fine at light loads for a week. Once it had spent enough hours pulling 600 W, thermal cycling on a marginal joint widened the crack until the inductor lost reliable contact under transient current. With one inductor effectively out of the picture under load, the remaining chokes carried its share, the regulator's feedback loop got noisier, ripple climbed, one of the GPU's internal rails dipped out of spec, and the card aborted the PCIe link rather than corrupt data. That's the Xid 79 + DPC containment signature in a nutshell — and it only shows up under real, sustained load.
 
-With one inductor effectively out of the picture under load, the remaining chokes carry its share. The regulator's feedback loop gets noisier, ripple climbs, one of the GPU's internal rails dips out of spec, and the card aborts the PCIe link rather than corrupt data. That's Xid 79 + DPC containment in a nutshell — and it only shows up under real, sustained load.
+## The lesson we got from doing it cold
+
+Pulling the block at room temperature is what made the cracked joint visible — but if the joint had been healthy, doing it cold could just as easily have *created* the same defect on a different chip. Thermal pads on factory GPU coolers are sticky. The bond between the pad and the SMD parts is real. When you peel a cold pad off a VRM area, the pad pulls upward on whatever it's stuck to, and that force concentrates on the small SMD components, not on the big inductor and capacitor packages. Marginal joints fail. Healthy joints may survive but are stressed.
+
+The fix is to **warm the GPU to about 90 °C first**, then disassemble while the pads are soft. At 90 °C the silicone in the pad goes pliable; it lets go of the components instead of holding them and lifting. We did this by running a brief compute load on the card to bring it up to temperature, then powering off and immediately starting the teardown — no hot-air gun, no heat plate, just the card's own heat.
+
+We learned this the hard way on the pilot. Every card we converted after it — all three — came apart warm and went back together without surprise. Zero further incidents during conversion.
 
 ## Putting it back
 
@@ -86,7 +96,7 @@ Resoldering a power inductor onto a multi-layer GPU PCB is real microsolder work
 
 That's the part most people miss about a "dead" GPU. If the failure is a single discrete component coming off the board, you don't need an RMA, a hot-air rework station, or a $500 microscope. You need to find the nearest shop that lists "microsoldering" or "logic board repair" on their website. Phone-repair chains, indie cellphone shops, and console-repair places all qualify. The bring-it-in-and-wait economics are very different from the ship-it-back-to-the-manufacturer flow.
 
-Back home, fresh paste and pads on the GPU, waterblock torqued back down, into the loop.
+Back home, fresh paste and pads on the GPU, waterblock torqued back down, into the loop. With the pilot card validated, we converted the remaining three cards using the warmup-before-disassembly procedure. No further incidents.
 
 Powered on. `nvidia-smi` showed all four cards. Ran the standard stress suite on the repaired card alone:
 
@@ -113,9 +123,10 @@ The repaired card runs the coolest of the four — fresh paste and pads. The oth
 
 ## Takeaways
 
+- **Warm the GPU to about 90 °C before pulling the thermal pads.** This is the single most important thing in this post. Cold pads are sticky enough to lift small SMD parts off the PCB. Warm pads release cleanly. Run a brief load to bring the card up to temperature, power off, immediately disassemble. We learned this the hard way on the pilot and applied it to the other three with zero incidents.
+- **Convert one card first, soak-test it, then commit.** A week of real workloads on the pilot is what surfaced the cracked joint. If we had converted all four at once we would have had four blocks to pull and four times the failure surface. One-at-a-time scales the risk to your actual learning rate.
 - **A card that ran fine for a week is not proof of healthy hardware.** Marginal SMD joints can pass initial bring-up and only fail after enough thermal cycles at full load. "It worked yesterday" is not load-bearing evidence.
 - **Xid 79 + DPC containment, only under sustained load, only on one card, is a hardware signal.** Driver swaps, CUDA reinstalls, and inference-engine theories were dead ends I spent hours on. The failure pattern itself told the story — listen to it earlier.
-- **When peeling thermal pads off a VRM area, peel slowly and watch what comes off with them.** Anything that lifts with the pad — even if it looks like a fragment of pad — should be inspected. A 3 mm choke is small enough to miss.
 - **You probably don't need to RMA, and you probably shouldn't solder it yourself.** A local phone-repair chain with a microsolder tech can put a 3 mm SMD part back on a GPU PCB in twenty minutes for the price of dinner. The skill exists in your city; you just have to look for it.
 
 ## What the rig is doing now
