@@ -15,7 +15,6 @@ tags: ["hardware", "gpu", "blackwell", "watercooling", "rtx-pro-6000", "vllm", "
 categories:
   - Hardware
   - GPU
-disableShare: true
 ---
 
 This rig exists to **train models**, not serve them. Four RTX PRO 6000 Blackwell cards in one chassis at 600 W each is 2.4 kW of heat to evict, and training runs are hours-to-days long with every card pinned at full TDP. Air coolers can do it for an inference burst; they cannot do it for a multi-day training job — the fans get loud, the cards stack their exhaust into each other, and the first one to thermal-throttle stalls the whole synchronous step.
