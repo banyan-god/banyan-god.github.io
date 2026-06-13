@@ -82,9 +82,11 @@ With one inductor effectively out of the picture under load, the remaining choke
 
 ## Putting it back
 
-Resoldering a power inductor onto a multi-layer GPU PCB is not glamorous work but it isn't exotic either. I did it with a **$40 SmartFix soldering kit from Amazon** — not a $500 rework station. Flux the pads, tin them lightly, place the part, reflow with the surrounding area shielded. The pads on these inductors are big and flat, which actually makes them easier to land than the fine-pitch stuff next to them. Visual check under magnification, continuity check across the part, reinstall the waterblock with fresh paste and pads, back in the loop.
+Resoldering a power inductor onto a multi-layer GPU PCB is real microsolder work — small pads, fine-pitch neighbors, multi-layer copper that sinks heat aggressively. I didn't try to do it myself. I walked into a **SmartFix** — a national chain of phone and electronics repair shops — in Las Vegas, handed the bare PCB to their microsolder tech, and watched him do it. **$40, about twenty minutes.** These shops do BGA reballs and 0201-pitch work on iPhone boards every day; a 3 mm power inductor with two big flat pads is a small job to them.
 
-If you're hesitating because you don't own pro rework gear: you don't need it for a part this size. A cheap kit, patience, and a steady hand are enough.
+That's the part most people miss about a "dead" GPU. If the failure is a single discrete component coming off the board, you don't need an RMA, a hot-air rework station, or a $500 microscope. You need to find the nearest shop that lists "microsoldering" or "logic board repair" on their website. Phone-repair chains, indie cellphone shops, and console-repair places all qualify. The bring-it-in-and-wait economics are very different from the ship-it-back-to-the-manufacturer flow.
+
+Back home, fresh paste and pads on the GPU, waterblock torqued back down, into the loop.
 
 Powered on. `nvidia-smi` showed all four cards. Ran the standard stress suite on the repaired card alone:
 
@@ -114,7 +116,7 @@ The repaired card runs the coolest of the four — fresh paste and pads. The oth
 - **A card that ran fine for a week is not proof of healthy hardware.** Marginal SMD joints can pass initial bring-up and only fail after enough thermal cycles at full load. "It worked yesterday" is not load-bearing evidence.
 - **Xid 79 + DPC containment, only under sustained load, only on one card, is a hardware signal.** Driver swaps, CUDA reinstalls, and inference-engine theories were dead ends I spent hours on. The failure pattern itself told the story — listen to it earlier.
 - **When peeling thermal pads off a VRM area, peel slowly and watch what comes off with them.** Anything that lifts with the pad — even if it looks like a fragment of pad — should be inspected. A 3 mm choke is small enough to miss.
-- **You don't need pro rework gear to put it back.** A $40 kit and a steady hand handle 3 mm power inductors. The pads are big and flat; it's not fine-pitch work.
+- **You probably don't need to RMA, and you probably shouldn't solder it yourself.** A local phone-repair chain with a microsolder tech can put a 3 mm SMD part back on a GPU PCB in twenty minutes for the price of dinner. The skill exists in your city; you just have to look for it.
 
 ## What the rig is doing now
 
