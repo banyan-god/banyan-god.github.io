@@ -25,6 +25,8 @@ params:
     Content: |
       I’m Sabareesh, a curious researcher exploring Large Language Models (LLMs) and reinforcement learning. By studying the inner workings of LLMs, I’m working to better understand their capabilities, uncover insights, and contribute meaningfully to these transformative fields.        
       
+      I’m building [Spicedust](https://spicedust.ai) — a research lab for *living models*: reasoning, agents, continual learning, and memory. The research here feeds it.
+
       Let’s create something extraordinary together!
 
 
@@ -38,4 +40,7 @@ menu:
     - name: "Resume"
       url: "/resume/"
       weight: 2
+    - name: "Spicedust"
+      url: "https://spicedust.ai"
+      weight: 3
 
