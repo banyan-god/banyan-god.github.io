@@ -161,3 +161,5 @@ TTT-E2E demonstrates that online adaptation during inference is architecturally 
 *Implementation: [github.com/banyan-god/ttt-e2e-qwen3](https://github.com/banyan-god/ttt-e2e-qwen3)*
 *Paper: [End-to-End Test-Time Training for Long Context](https://arxiv.org/abs/2512.23675)*
 *Official JAX: [github.com/test-time-training/e2e](https://github.com/test-time-training/e2e)*
+
+This line of work feeds the research at [Spicedust](https://spicedust.ai/research) — living models that keep learning in deployment.
