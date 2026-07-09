@@ -47,5 +47,3 @@ Agent → MCP Compact → Upstream MCP Server
 ```
 
 More details, configs, and run commands live in the repo: https://github.com/banyan-god/mcp-compact.
-
-Agent context and orchestration like this feed the research at [Spicedust](https://spicedust.ai/research) — living models with agents that own real work.

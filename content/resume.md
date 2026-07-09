@@ -4,7 +4,7 @@
 
 ## Summary
 
-ML researcher and CTO exploring how language models can learn, adapt, and make decisions in real-time. Current research spans three areas: training LLMs that keep learning during inference (TTT-E2E with second-order meta-gradients, 4.6–6.1% perplexity gains on Qwen3-4B), teaching LLMs to trade autonomously via reinforcement learning (GRPO on proprietary financial data, +9.4% portfolio return), and building multi-agent systems that reason and act in the real world. Pre-trained LLMs from scratch, contributed to Karpathy's open-source training codebases, and run continuous experiments on personal GPU infrastructure. 14 years shipping production systems as CTO — now applying that engineering depth to AI research, and founder of [Spicedust](https://spicedust.ai), a research lab building living models (reasoning, agents, continual learning, memory).
+ML researcher and CTO exploring how language models can learn, adapt, and make decisions in real-time. Current research spans three areas: training LLMs that keep learning during inference (TTT-E2E with second-order meta-gradients, 4.6–6.1% perplexity gains on Qwen3-4B), teaching LLMs to trade autonomously via reinforcement learning (GRPO on proprietary financial data, +9.4% portfolio return), and building multi-agent systems that reason and act in the real world. Pre-trained LLMs from scratch, contributed to Karpathy's open-source training codebases, and run continuous experiments on personal GPU infrastructure. 14 years shipping production systems as CTO — now applying that engineering depth to AI research.
 
 ## Technical Skills
 
